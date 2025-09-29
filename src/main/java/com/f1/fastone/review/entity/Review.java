@@ -10,9 +10,11 @@ import lombok.*;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Builder
 @Table(name = "p_review")
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,5 +42,8 @@ public class Review extends BaseEntity {
     @Column(name = "review_id")
     private UUID reviewId;
 
-
+    public void update(int score, String content) {
+        this.score = score;
+        this.content = content;
+    }
 }
