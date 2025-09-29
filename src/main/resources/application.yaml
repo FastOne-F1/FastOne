@@ -19,6 +19,11 @@ spring:
         format_sql: true
         show_sql: true
 
+# JWT 설정
+jwt:
+  secret:
+    key: yTo4jLx9zYBaTF/Ralw7tiKF6Cw4pCk76+r+YqwUMsA=
+
 logging:
   level:
     root: INFO
