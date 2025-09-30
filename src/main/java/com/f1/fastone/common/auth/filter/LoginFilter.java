@@ -73,9 +73,6 @@ public class LoginFilter implements Filter {
             // JWT 토큰 생성
             String token = jwtUtil.createToken(user.getUsername(), user.getRole());
 
-            // 쿠키에 저장
-            jwtUtil.addJwtToCookie(token, response);
-
             // 성공 응답
             sendSuccessResponse(response, token);
 
