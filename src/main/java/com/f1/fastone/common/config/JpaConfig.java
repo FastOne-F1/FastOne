@@ -1,4 +1,4 @@
-package com.f1.fastone.config;
+package com.f1.fastone.common.config;
 
 import java.util.Optional;
 import org.springframework.context.annotation.Bean;
