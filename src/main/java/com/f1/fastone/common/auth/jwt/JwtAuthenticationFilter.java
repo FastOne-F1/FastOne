@@ -1,8 +1,6 @@
 package com.f1.fastone.common.auth.jwt;
 
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
-import com.f1.fastone.common.auth.security.UserDetailsServiceImpl;
-import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.user.dto.LoginRequestDto;
 import com.f1.fastone.user.entity.UserRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,8 +15,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {

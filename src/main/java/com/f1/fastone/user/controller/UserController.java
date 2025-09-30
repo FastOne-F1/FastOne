@@ -44,38 +44,5 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
     }
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인", description = "사용자 로그인 후 JWT 토큰 반환")
-    public ResponseEntity<ApiResponse<String>> login(
-            @RequestBody LoginRequestDto requestDto,
-            HttpServletResponse response) {
 
-        log.info("로그인 요청: username={}", requestDto.getUsername());
-
-        // 사용자 찾기 & 비밀번호 검증
-        Optional<User> userOptional = userRepository.findByUsername(requestDto.getUsername());
-        if (userOptional.isEmpty() ||
-                !passwordEncoder.matches(requestDto.getPassword(), userOptional.get().getPassword())) {
-            return ResponseEntity.status(401)
-                    .body(new ApiResponse<>(401, "로그인 실패", null));
-        }
-
-        User user = userOptional.get();
-
-        // JWT 토큰 생성
-        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
-
-        // 쿠키에도 저장
-        jwtUtil.addJwtToCookie(token, response);
-
-        log.info("로그인 성공: username={}", user.getUsername());
-
-        return ResponseEntity.ok(ApiResponse.success(token));
-    }
-
-    @PostMapping("/test-auth")
-    @Operation(summary = "인증 테스트", description = "JWT 토큰 인증을 테스트합니다")
-    public ResponseEntity<ApiResponse<String>> testAuth() {
-        return ResponseEntity.ok(ApiResponse.success("인증이 성공했습니다."));
-    }
 }
