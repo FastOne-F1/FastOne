@@ -9,7 +9,7 @@ public enum ErrorCode {
     USER_EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST.value(), "U001", "이미 가입된 이메일입니다."),
     USER_USERNAME_DUPLICATED(HttpStatus.BAD_REQUEST.value(), "U002", "이미 사용 중인 사용자명입니다."),
     USER_INVALID_PASSWORD(HttpStatus.BAD_REQUEST.value(), "U003", "비밀번호가 일치하지 않습니다."),
-    USER_INVALID_ADMIN_TOKEN(HttpStatus.BAD_REQUEST.value(), "U004", "관리자 암호가 틀려 등록이 불가능합니다."),
+    USER_INVALID_MASTER_TOKEN(HttpStatus.BAD_REQUEST.value(), "U004", "관리자 암호가 틀려 등록이 불가능합니다."),
     USER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "U005", "권한이 없습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U006", "유저를 찾을 수 없습니다."),
 
