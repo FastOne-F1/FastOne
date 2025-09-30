@@ -26,6 +26,7 @@ public class ReviewMapper {
 			review.getUpdatedAt(),
 			ReplyResponseDto.from(review),
 			review.getOrder() != null ? toOrderSummaryDto(review.getOrder()) : null
+			// N + 1 병목 구간 : 추후 수정 반드시 필요
 		);
 	}
 
