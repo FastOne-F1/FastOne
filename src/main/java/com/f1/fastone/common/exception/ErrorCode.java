@@ -18,7 +18,8 @@ public enum ErrorCode {
     AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A003", "만료된 토큰입니다."),
 
 
-    //store
+    // store
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "스토어를 찾을 수 없습니다."),
 
     //menu
 
