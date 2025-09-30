@@ -14,6 +14,24 @@ import java.util.UUID;
 @Table(name = "p_menu")
 public class Menu extends BaseEntity {
 
+    public Menu(String name,
+                String description,
+                int price,
+                boolean soldOut,
+                boolean option,
+                String imageUrl,
+                Store store,
+                MenuCategory category) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.soldOut = soldOut;
+        this.option = option;
+        this.imageUrl = imageUrl;
+        this.store = store;
+        this.category = category;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false, updatable = false)
