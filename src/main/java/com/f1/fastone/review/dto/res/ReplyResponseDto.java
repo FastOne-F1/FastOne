@@ -1,18 +1,25 @@
 package com.f1.fastone.review.dto.res;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
+import com.f1.fastone.review.entity.Review;
 
 public record ReplyResponseDto(
 
-	UUID replyId,
-
 	String content,
-
-	String ownerName,
 
 	LocalDateTime createdAt,
 
 	LocalDateTime updatedAt
 
-) {}
+) {
+	public static ReplyResponseDto from(Review review) {
+		if (review.getReplyContent() == null) return null;
+
+		return new ReplyResponseDto(
+			review.getReplyContent(),
+			review.getReplyCreatedAt(),
+			review.getReplyUpdatedAt()
+		);
+	}
+}
