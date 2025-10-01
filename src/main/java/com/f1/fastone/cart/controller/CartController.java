@@ -1,14 +1,11 @@
 package com.f1.fastone.cart.controller;
 
-import com.f1.fastone.cart.dto.CartItemDto;
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
 import com.f1.fastone.cart.dto.response.ItemCreateResponseDto;
 import com.f1.fastone.cart.service.CartService;
 import com.f1.fastone.common.dto.ApiResponse;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +30,20 @@ public class CartController {
                                                       @RequestBody ItemCreateRequestDto requestDto) {
 
         return ApiResponse.success(cartService.addItem(user.getUsername(), storeId, requestDto));
+    }
+
+    @DeleteMapping("/store/{storeId}/items/{menuId}")
+    public ApiResponse<Void> removeItem(@AuthenticationPrincipal UserDetails user,
+                                        @PathVariable UUID storeId,
+                                        @PathVariable String menuId) {
+        cartService.removeItem(user.getUsername(), storeId, menuId);
+        return ApiResponse.success();
+    }
+
+    @DeleteMapping("/store/{storeId}")
+    public ApiResponse<Void> clearCart(@AuthenticationPrincipal UserDetails user,
+                                       @PathVariable UUID storeId) {
+        cartService.clearCart(user.getUsername(), storeId);
+        return ApiResponse.success();
     }
 }

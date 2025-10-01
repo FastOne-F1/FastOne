@@ -1,6 +1,5 @@
 package com.f1.fastone.cart.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -55,5 +54,20 @@ public class CartRepository {
 
         redisTemplate.expire(idx, TTL);
         redisTemplate.expire(cart, TTL);
+    }
+
+    public void removeMenu(String userId, String storeId, String menuId) {
+        String cart = cartKey(userId, storeId);
+        hash.delete(cart, menuId);
+        redisTemplate.expire(cart, TTL);
+    }
+
+    public void clearCart(String userId, String storeId) {
+        String idx = idxKey(userId);
+        String cart = cartKey(userId, storeId);
+
+        redisTemplate.delete(cart);
+        set.remove(idx, storeId);
+        redisTemplate.expire(idx, TTL);
     }
 }

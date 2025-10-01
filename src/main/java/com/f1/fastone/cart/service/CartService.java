@@ -38,6 +38,14 @@ public class CartService {
         return ItemCreateResponseDto.from(String.valueOf(storeId), String.valueOf(requestDto.menuId()), requestDto.quantity(), priceView, addedAt);
     }
 
+    public void removeItem(String userId, UUID storeId, String menuId) {
+        cartRepository.removeMenu(userId, String.valueOf(storeId), menuId);
+    }
+
+    public void clearCart(String userId, UUID storeId) {
+        cartRepository.clearCart(userId, String.valueOf(storeId));
+    }
+
     private String compact(int quantity, int price, long addedAt) {
         // {"q":2,"p":10000,"a":1696170030000}
         return String.format("{\"q\":%d,\"p\":%d,\"a\":%d}", quantity, price, addedAt);
