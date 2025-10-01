@@ -6,11 +6,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
+import java.util.*;
 
 @Repository
 public class CartRepository {
 
-    private static final Duration TTL = Duration.ofDays(7);
+    private static final Duration CART_TTL = Duration.ofDays(7);
+    private static final Duration IDX_TTL = Duration.ofDays(30);
 
     public static String cartKey(String userId, String storeId){ return "cart:" + userId + ":store:" + storeId; }
     public static String idxKey(String userId)             { return "cart:" + userId + ":stores"; }
@@ -36,8 +38,8 @@ public class CartRepository {
             hash.put(cart, "__init", "1");
         }
 
-        redisTemplate.expire(idx, TTL);
-        redisTemplate.expire(cart, TTL);
+        redisTemplate.expire(idx, IDX_TTL);
+        redisTemplate.expire(cart, CART_TTL);
     }
 
     public void addMenu(String userId, String storeId, String menuId, String jsonValue) {
@@ -52,14 +54,14 @@ public class CartRepository {
 
         hash.put(cart, menuId, jsonValue);
 
-        redisTemplate.expire(idx, TTL);
-        redisTemplate.expire(cart, TTL);
+        redisTemplate.expire(idx, IDX_TTL);
+        redisTemplate.expire(cart, CART_TTL);
     }
 
     public void removeMenu(String userId, String storeId, String menuId) {
         String cart = cartKey(userId, storeId);
         hash.delete(cart, menuId);
-        redisTemplate.expire(cart, TTL);
+        redisTemplate.expire(cart, CART_TTL);
     }
 
     public void clearCart(String userId, String storeId) {
@@ -68,6 +70,6 @@ public class CartRepository {
 
         redisTemplate.delete(cart);
         set.remove(idx, storeId);
-        redisTemplate.expire(idx, TTL);
+        redisTemplate.expire(idx, IDX_TTL);
     }
 }
