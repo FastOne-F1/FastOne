@@ -8,6 +8,5 @@ public record MenuResponseDto(
         String description,
         int price,
         boolean soldOut,
-        boolean option,
         String imageUrl
 ) {}

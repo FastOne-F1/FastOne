@@ -1,6 +1,7 @@
 package com.f1.fastone.common.exception;
 
 import lombok.Getter;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -19,8 +20,10 @@ public enum ErrorCode {
 
 
     //store
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "가게를 찾을 수 없습니다."),
 
     //menu
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "메뉴를 찾을 수 없습니다."),
 
     //order
 

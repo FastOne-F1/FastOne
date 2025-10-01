@@ -1,6 +1,8 @@
 package com.f1.fastone.menu.service;
 
 import com.f1.fastone.common.dto.ApiResponse;
+import com.f1.fastone.common.exception.ErrorCode;
+import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.menu.dto.request.MenuCreateRequestDto;
 import com.f1.fastone.menu.dto.response.MenuResponseDto;
 import com.f1.fastone.menu.entity.Menu;
@@ -22,7 +24,7 @@ public class MenuService {
 
     public ApiResponse<MenuResponseDto> createMenu(MenuCreateRequestDto dto) {
         Store store = storeRepository.findById(dto.storeId())
-                .orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
 
 
     Menu menu = new Menu(
@@ -30,7 +32,6 @@ public class MenuService {
             dto.description(),
             dto.price(),
             dto.soldOut(),
-            dto.option(),
             dto.imageUrl(),
             store,
             null
@@ -42,7 +43,7 @@ public class MenuService {
 
     public ApiResponse<MenuResponseDto> getMenu(UUID id) {
         Menu menu = menuRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
 
         return ApiResponse.success(toResponseDto(menu));
     }
@@ -62,7 +63,6 @@ public class MenuService {
                 menu.getDescription(),
                 menu.getPrice(),
                 menu.isSoldOut(),
-                menu.isOption(),
                 menu.getImageUrl()
         );
     }

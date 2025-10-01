@@ -10,7 +10,6 @@ public record MenuCreateRequestDto(
         String description,
         @NotNull Integer price,
         boolean soldOut,
-        boolean option,
         String imageUrl,
         @NotNull UUID storeId,
         UUID categoryId

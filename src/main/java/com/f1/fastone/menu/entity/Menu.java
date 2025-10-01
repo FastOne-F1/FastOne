@@ -18,7 +18,6 @@ public class Menu extends BaseEntity {
                 String description,
                 int price,
                 boolean soldOut,
-                boolean option,
                 String imageUrl,
                 Store store,
                 MenuCategory category) {
@@ -26,7 +25,6 @@ public class Menu extends BaseEntity {
         this.description = description;
         this.price = price;
         this.soldOut = soldOut;
-        this.option = option;
         this.imageUrl = imageUrl;
         this.store = store;
         this.category = category;
@@ -45,9 +43,6 @@ public class Menu extends BaseEntity {
 
     @Column(nullable = false)
     private boolean soldOut;
-
-    @Column(nullable = false)
-    private boolean option;
 
     @Column(nullable = false)
     private int price;
