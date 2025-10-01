@@ -1,6 +1,7 @@
 package com.f1.fastone.cart.controller;
 
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
+import com.f1.fastone.cart.dto.request.ItemQuantityUpdateRequest;
 import com.f1.fastone.cart.dto.response.ItemCreateResponseDto;
 import com.f1.fastone.cart.service.CartService;
 import com.f1.fastone.common.dto.ApiResponse;
@@ -18,7 +19,7 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping("/store/{storeId}")
-    public ApiResponse<?> initCart(@AuthenticationPrincipal UserDetails user,
+    public ApiResponse<Void> initCart(@AuthenticationPrincipal UserDetails user,
                                 @PathVariable UUID storeId) {
         cartService.initCart(user.getUsername(), storeId);
         return ApiResponse.created();
@@ -28,8 +29,16 @@ public class CartController {
     public ApiResponse<ItemCreateResponseDto> addItem(@AuthenticationPrincipal UserDetails user,
                                                       @PathVariable UUID storeId,
                                                       @RequestBody ItemCreateRequestDto requestDto) {
-
         return ApiResponse.success(cartService.addItem(user.getUsername(), storeId, requestDto));
+    }
+
+    @PatchMapping("/store/{storeId}/items/{menuId}")
+    public ApiResponse<Void> updateQuantity(@AuthenticationPrincipal UserDetails user,
+                                            @PathVariable UUID storeId,
+                                            @PathVariable String menuId,
+                                            @RequestBody ItemQuantityUpdateRequest request) {
+        cartService.setQuantity(user.getUsername(), storeId, menuId, request.quantity());
+        return ApiResponse.success();
     }
 
     @DeleteMapping("/store/{storeId}/items/{menuId}")

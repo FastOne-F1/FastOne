@@ -1,5 +1,8 @@
 package com.f1.fastone.cart.repository;
 
+import com.f1.fastone.common.exception.ErrorCode;
+import com.f1.fastone.common.exception.custom.EntityNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -58,8 +61,29 @@ public class CartRepository {
         redisTemplate.expire(cart, CART_TTL);
     }
 
+    public void updateQuantity(String userId, String storeId, String menuId, int newQty) {
+        String cart = cartKey(userId, storeId);
+        String existingJson = hash.get(cart, menuId);
+        if (existingJson == null) {
+            throw new EntityNotFoundException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+
+        try {
+            Map<String, Object> itemMap = new ObjectMapper().readValue(existingJson, Map.class);
+            itemMap.put("q", newQty);
+            String updatedJson = new ObjectMapper().writeValueAsString(itemMap);
+            hash.put(cart, menuId, updatedJson);
+            redisTemplate.expire(cart, CART_TTL);
+        } catch (Exception e) {
+            throw new IllegalStateException("장바구니 수량 업데이트 중 오류가 발생했습니다.");
+        }
+    }
+
     public void removeMenu(String userId, String storeId, String menuId) {
         String cart = cartKey(userId, storeId);
+        if (!hash.hasKey(cart, menuId)) {
+            throw new EntityNotFoundException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
         hash.delete(cart, menuId);
         redisTemplate.expire(cart, CART_TTL);
     }
@@ -67,6 +91,10 @@ public class CartRepository {
     public void clearCart(String userId, String storeId) {
         String idx = idxKey(userId);
         String cart = cartKey(userId, storeId);
+
+        if (!redisTemplate.hasKey(cart)) {
+            throw new EntityNotFoundException(ErrorCode.CART_NOT_FOUND);
+        }
 
         redisTemplate.delete(cart);
         set.remove(idx, storeId);

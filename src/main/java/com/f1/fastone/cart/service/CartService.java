@@ -5,6 +5,8 @@ import com.f1.fastone.cart.dto.response.ItemCreateResponseDto;
 import com.f1.fastone.cart.repository.CartRepository;
 import com.f1.fastone.menu.entity.Menu;
 import com.f1.fastone.menu.repository.MenuRepository;
+import com.f1.fastone.common.exception.ErrorCode;
+import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,7 +27,7 @@ public class CartService {
 
     public ItemCreateResponseDto addItem(String userId, UUID storeId, ItemCreateRequestDto requestDto) {
         Menu menu = menuRepository.findByIdAndStoreId(requestDto.menuId(), storeId)
-                .orElseThrow(() -> new IllegalArgumentException("메뉴가 없거나 상점이 다릅니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
 
         int priceView = menu.getPrice();
         Instant now = Instant.now();
@@ -36,6 +38,10 @@ public class CartService {
         cartRepository.addMenu(userId, String.valueOf(storeId), String.valueOf(requestDto.menuId()), json);
 
         return ItemCreateResponseDto.from(String.valueOf(storeId), String.valueOf(requestDto.menuId()), requestDto.quantity(), priceView, addedAt);
+    }
+
+    public void setQuantity(String userId, UUID storeId, String menuId, int quantity) {
+        cartRepository.updateQuantity(userId, String.valueOf(storeId), menuId, quantity);
     }
 
     public void removeItem(String userId, UUID storeId, String menuId) {

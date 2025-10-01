@@ -22,6 +22,7 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "스토어를 찾을 수 없습니다."),
 
     //menu
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "메뉴를 찾을 수 없습니다."),
 
     //order
 
@@ -33,6 +34,8 @@ public enum ErrorCode {
     ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CA001", "장바구니를 찾을 수 없습니다."),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CA002", "장바구니에 해당 메뉴가 존재하지 않습니다."),
 
     //common
     BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "C001", "잘못된 요청입니다."),
