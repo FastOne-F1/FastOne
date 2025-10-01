@@ -11,9 +11,11 @@ import lombok.*;
 
 import java.util.UUID;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_orders")
 public class Order extends BaseEntity {
     @Id
