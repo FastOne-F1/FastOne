@@ -54,30 +54,6 @@ public class StoreCategoryService {
     }
 
     // 특정 카테고리 수정
-//    @Transactional
-//    public StoreCategoryResponseDto updateStoreCategory(
-//            Long id,
-//            StoreCategoryUpdateRequestDto request) {
-//
-//        StoreCategory storeCategory = storeCategoryRepository.findById(id)
-//                .orElseThrow(() -> new EntityNotFoundException(
-//                        ErrorCode.STORE_CATEGORY_NOT_FOUND,
-//                        "ID: " + id + "에 해당하는 StoreCategory를 찾을 수 없어 수정할 수 없습니다."
-//                ));
-//
-//        // 카테고리 이름 중복 체크
-//        if (!storeCategory.getStoreCategoryName().equals(request.storeCategoryName()) &&
-//                storeCategoryRepository.existsByStoreCategoryName(request.storeCategoryName())) {
-//            throw new EntityNotFoundException(ErrorCode.STORE_CATEGORY_DUPLICATED, "이미 존재하는 StoreCategory 이름입니다.");
-//        }
-//
-//        storeCategory.updateName(request.storeCategoryName());
-//
-//        // save()를 명시적으로 호출할 필요 없이 @Transactional에 의해 자동으로 DB에 반영됨 (Dirty Checking)
-//        // 만약 명시적 save를 선호한다면 save(storeCategory) 호출 가능
-//
-//        return StoreCategoryResponseDto.fromStoreCategoryEntity(storeCategory);
-//    }
     @Transactional
     public StoreCategoryResponseDto updateStoreCategory(
             Long id,
