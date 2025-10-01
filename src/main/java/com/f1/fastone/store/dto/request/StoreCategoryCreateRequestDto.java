@@ -12,6 +12,7 @@ public record StoreCategoryCreateRequestDto(
     public StoreCategory toStoreCategoryEntity() {
         return StoreCategory.builder()
                 .storeCategoryName(this.storeCategoryName)
+                // store 필드 nullable=true이므로 설정하지 않음
                 .build();
     }
 }

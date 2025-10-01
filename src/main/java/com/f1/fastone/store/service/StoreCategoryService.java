@@ -61,9 +61,9 @@ public class StoreCategoryService {
 
         StoreCategory storeCategory = storeCategoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        ErrorCode.STORE_CATEGORY_NOT_FOUND,
-                        "ID: " + id + "에 해당하는 StoreCategory를 찾을 수 없어 수정할 수 없습니다."
-                ));
+                ErrorCode.STORE_CATEGORY_NOT_FOUND,
+                "ID: " + id + "에 해당하는 StoreCategory를 찾을 수 없어 수정할 수 없습니다."
+        ));
 
         // 카테고리 이름 중복 체크
         if (!storeCategory.getStoreCategoryName().equals(request.storeCategoryName()) &&
@@ -73,10 +73,10 @@ public class StoreCategoryService {
 
         storeCategory.updateName(request.storeCategoryName());
 
-        // ⭐⭐⭐ Dirty Checking 대신 명시적으로 save 호출 ⭐⭐⭐
         StoreCategory updatedCategory = storeCategoryRepository.save(storeCategory);
 
         return StoreCategoryResponseDto.fromStoreCategoryEntity(updatedCategory);
+        // return StoreCategoryResponseDto.fromStoreCategoryEntity(storeCategory); // 이 줄은 제거합니다.
     }
 
     // 특정 StoreCategory 삭제

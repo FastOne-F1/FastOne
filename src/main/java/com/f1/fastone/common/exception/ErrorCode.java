@@ -21,12 +21,18 @@ public enum ErrorCode {
     //store
     STORE_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S201", "요청한 가게 카테고리를 찾을 수 없습니다."),
     STORE_CATEGORY_DUPLICATED(HttpStatus.CONFLICT.value(), "S202", "이미 존재하는 가게 카테고리 이름입니다."),
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "스토어를 찾을 수 없습니다."),
 
     //menu
 
     //order
 
-    //review
+    // review
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "R001", "리뷰를 찾을 수 없습니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT.value(), "R002", "이미 리뷰가 존재합니다."),
+    REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "R003", "본인 리뷰만 접근할 수 있습니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "O001", "주문을 찾을 수 없습니다."),
+    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
 
