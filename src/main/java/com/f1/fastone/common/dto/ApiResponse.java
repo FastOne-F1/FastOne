@@ -19,6 +19,10 @@ public record ApiResponse<T>(
         return new ApiResponse<>(HttpStatus.OK.value(), null, data);
     }
 
+    public static <T> ApiResponse<T> created() {
+        return new ApiResponse<>(HttpStatus.CREATED.value(), null, null);
+    }
+
     public static <T> ApiResponse<T> created(T data) {
         return new ApiResponse<>(HttpStatus.CREATED.value(), null, data);
     }
