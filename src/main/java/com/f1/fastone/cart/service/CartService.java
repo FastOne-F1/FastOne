@@ -21,10 +21,6 @@ public class CartService {
     private final CartRepository cartRepository;
     private final MenuRepository menuRepository;
 
-    public void initCart(String userId, UUID storeId) {
-        cartRepository.createCart(userId, String.valueOf(storeId));
-    }
-
     public ItemCreateResponseDto addItem(String userId, UUID storeId, ItemCreateRequestDto requestDto) {
         Menu menu = menuRepository.findByIdAndStoreId(requestDto.menuId(), storeId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));

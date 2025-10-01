@@ -3,6 +3,8 @@ package com.f1.fastone.cart.repository;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,30 +26,20 @@ public class CartRepository {
     private final HashOperations<String, String, String> hash;
     private final SetOperations<String, String> set;
 
-    public CartRepository(StringRedisTemplate rt) {
-        this.redisTemplate = rt;
-        this.hash = rt.opsForHash();
-        this.set = rt.opsForSet();
-    }
-
-    public void createCart(String userId, String storeId) {
-        String idx = idxKey(userId);
-        String cart = cartKey(userId, storeId);
-
-        set.add(idx, storeId);
-
-        // 해시 키가 없으면 더미 필드로 빈 해시 생성 (첫 아이템 추가 시 __init 제거)
-        if (!redisTemplate.hasKey(cart)) {
-            hash.put(cart, "__init", "1");
-        }
-
-        redisTemplate.expire(idx, IDX_TTL);
-        redisTemplate.expire(cart, CART_TTL);
+    public CartRepository(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+        this.hash = redisTemplate.opsForHash();
+        this.set = redisTemplate.opsForSet();
     }
 
     public void addMenu(String userId, String storeId, String menuId, String jsonValue) {
         String idx = idxKey(userId);
         String cart = cartKey(userId, storeId);
+
+        // 장바구니(해시)가 없으면 새로 생성
+        if (!redisTemplate.hasKey(cart)) {
+            hash.put(cart, "__init", "1");
+        }
 
         set.add(idx, storeId);
 
@@ -61,21 +53,20 @@ public class CartRepository {
         redisTemplate.expire(cart, CART_TTL);
     }
 
-    public void updateQuantity(String userId, String storeId, String menuId, int newQty) {
+    public void updateQuantity(String userId, String storeId, String menuId, int quantity) {
         String cart = cartKey(userId, storeId);
         String existingJson = hash.get(cart, menuId);
         if (existingJson == null) {
             throw new EntityNotFoundException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
-
         try {
             Map<String, Object> itemMap = new ObjectMapper().readValue(existingJson, Map.class);
-            itemMap.put("q", newQty);
+            itemMap.put("q", quantity);
             String updatedJson = new ObjectMapper().writeValueAsString(itemMap);
             hash.put(cart, menuId, updatedJson);
             redisTemplate.expire(cart, CART_TTL);
-        } catch (Exception e) {
-            throw new IllegalStateException("장바구니 수량 업데이트 중 오류가 발생했습니다.");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

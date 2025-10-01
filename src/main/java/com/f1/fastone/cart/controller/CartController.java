@@ -18,13 +18,6 @@ public class CartController {
 
     private final CartService cartService;
 
-    @PostMapping("/store/{storeId}")
-    public ApiResponse<Void> initCart(@AuthenticationPrincipal UserDetails user,
-                                @PathVariable UUID storeId) {
-        cartService.initCart(user.getUsername(), storeId);
-        return ApiResponse.created();
-    }
-
     @PostMapping("/store/{storeId}/items")
     public ApiResponse<ItemCreateResponseDto> addItem(@AuthenticationPrincipal UserDetails user,
                                                       @PathVariable UUID storeId,
