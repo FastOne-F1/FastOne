@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
+@Getter
 public class OrderCreateRequestDto {
 
     private String username;
