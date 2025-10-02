@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,12 +34,26 @@ public class UserAddress extends BaseEntity {
     @Column
     private String addressDetail;
 
-    @Column(precision = 10, scale = 7)
-    private BigDecimal latitude;
-    @Column(precision = 10, scale = 7)
-    private BigDecimal longitude;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder
+    public UserAddress(String postalCode, String city, String address,
+                       String addressDetail, User user) {
+        this.postalCode = postalCode;
+        this.city = city;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.user = user;
+    }
+
+    // 주소 업데이트 메서드
+    public void updateAddress(String postalCode, String city, String address, String addressDetail) {
+        if (postalCode != null) this.postalCode = postalCode;
+        if (city != null) this.city = city;
+        if (address != null) this.address = address;
+        if (addressDetail != null) this.addressDetail = addressDetail;
+    }
+
 }
