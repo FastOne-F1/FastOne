@@ -2,6 +2,7 @@ package com.f1.fastone.order.dto.response;
 
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
+import com.f1.fastone.order.entity.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,6 @@ public class OrderResponseDto {
     String storeName;
     List<OrderItemDto> orderItems;
     PaymentDto payment;
+    OrderStatus orderStatus;
 
 }

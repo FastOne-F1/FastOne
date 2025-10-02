@@ -7,9 +7,12 @@ import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.menu.entity.Menu;
 import com.f1.fastone.order.dto.OrderItemDto;
+import com.f1.fastone.order.dto.PaymentDto;
+import com.f1.fastone.order.dto.request.OrderStatusRequestDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
 import com.f1.fastone.order.entity.Order;
 import com.f1.fastone.order.entity.OrderItem;
+import com.f1.fastone.order.entity.OrderStatus;
 import com.f1.fastone.order.repository.OrderItemRepository;
 import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.store.entity.Store;
@@ -22,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,14 +44,10 @@ public class OrderService {
     public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
         // User, 가게, 장바구니 조회
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
-        log.info("Find user : " + user);
         Store store = storeRepository.findById(requestDto.getStoreId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
-        log.info("Find store : " + store);
         Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
-        log.info("Find cart : " + cart);
         // Order 생성
         Order order = requestDto.toEntity(user, store);
-        log.info("Entity order : " + order);
         orderRepository.save(order);
 
         // Order Item 생성
@@ -58,11 +58,11 @@ public class OrderService {
                 .map(OrderItemDto::from)
                 .toList();
 
-        log.info("OrderItem이 저장되고 있는 중...");
         order.setOrderItems(orderItems);
-        log.info("OrderItem이 Order에 포함되고 있는 중...");
 
-        return new OrderResponseDto(order.getCreatedAt(), store.getName(), orderItemDtos, requestDto.getPayment());
+        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+
+        return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
 
     }
 
@@ -81,4 +81,20 @@ public class OrderService {
                     .toList();
     }
 
+    public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusRequestDto requestDto) {
+        OrderStatus status = requestDto.getOrderStatus();
+
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND)
+        );
+        order.setOrderStatus(status);
+
+        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
+                .map(OrderItemDto::from)
+                .toList();
+
+        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+
+        return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
+    }
 }
