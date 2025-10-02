@@ -53,10 +53,7 @@ public class OrderService {
         // Order Item 생성
         List<CartItem> cartItems = cart.getItems();
         List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
-        List<OrderItemDto> orderItemDtos = orderItems.stream()
-                .peek(orderItemRepository::save)
-                .map(OrderItemDto::from)
-                .toList();
+        List<OrderItemDto> orderItemDtos = orderItems.stream().peek(orderItemRepository::save).map(OrderItemDto::from).toList();
 
         order.setOrderItems(orderItems);
 
@@ -64,6 +61,28 @@ public class OrderService {
 
         return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
 
+    }
+
+    @Transactional
+    public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusRequestDto requestDto) {
+        OrderStatus status = requestDto.getOrderStatus();
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND));
+        order.setOrderStatus(status);
+
+        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream().map(OrderItemDto::from).toList();
+
+        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+
+        return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
+    }
+
+    @Transactional
+    public void deleteOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND)
+        );
+        orderRepository.delete(order);
     }
 
     private List<OrderItem> convertCartToOrder(Order order, List<CartItem> cartItems) {
@@ -77,25 +96,7 @@ public class OrderService {
                             .order(order)
                             .menu(menu)
                             .build();
-                    })
-                    .toList();
-    }
-
-    @Transactional
-    public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusRequestDto requestDto) {
-        OrderStatus status = requestDto.getOrderStatus();
-
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND)
-        );
-        order.setOrderStatus(status);
-
-        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream()
-                .map(OrderItemDto::from)
+                })
                 .toList();
-
-        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
-
-        return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
     }
 }

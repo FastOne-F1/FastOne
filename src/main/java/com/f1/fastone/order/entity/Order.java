@@ -57,7 +57,7 @@ public class Order extends BaseEntity {
     private Store store;
 
     @Builder.Default
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(mappedBy = "order")

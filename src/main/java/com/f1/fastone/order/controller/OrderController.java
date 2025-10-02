@@ -27,9 +27,6 @@ public class OrderController {
         return ApiResponse.created(response);
     }
 
-
-
-
     @PatchMapping("/{orderId}/status")
     public ApiResponse<OrderResponseDto> updateOrderStatus(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                            @PathVariable UUID orderId, @RequestBody OrderStatusRequestDto requestDto) {
@@ -37,6 +34,13 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
+    @DeleteMapping("/{orderId}/cancel")
+    public ApiResponse<Void> cancelOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                     @PathVariable UUID orderId) {
+        orderService.deleteOrder(orderId);
+        return ApiResponse.success();
+
+    }
 
 
 }
