@@ -28,11 +28,15 @@ public class OrderController {
     }
 
 
+
+
     @PatchMapping("/{orderId}/status")
     public ApiResponse<OrderResponseDto> updateOrderStatus(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                            @PathVariable UUID orderId, @RequestBody OrderStatusRequestDto requestDto) {
         OrderResponseDto response = orderService.updateOrderStatus(orderId, requestDto);
-        return ApiResponse.created(response);
+        return ApiResponse.success(response);
     }
+
+
 
 }
