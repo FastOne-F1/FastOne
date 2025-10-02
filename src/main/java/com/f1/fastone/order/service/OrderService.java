@@ -34,21 +34,22 @@ public class OrderService {
 
     @Transactional
     public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
+        // User, 가게, 장바구니 조회
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
         Store store = storeRepository.findById(requestDto.getStoreId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+        Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
+
+        // Order 생성
         Order order = requestDto.toEntity(user, store);
         orderRepository.save(order);
 
-        Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
+        // Order Item 생성
         List<CartItem> cartItems = cart.getItems();
-
         List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
-        List<OrderItemDto> orderItemDtos = orderItems.stream().map(orderItem -> {
-            return new OrderItemDto();
-        }).toList();
+        List<OrderItemDto> orderItemDtos = orderItems.stream().map(OrderItemDto::from).toList();
         order.setOrderItems(orderItems);
 
-        return new OrderResponseDto(order.getCreatedAt(), store.getName(), orderItemDtos, );
+        return new OrderResponseDto(order.getCreatedAt(), store.getName(), orderItemDtos, requestDto.getPayment());
 
     }
 
@@ -56,12 +57,11 @@ public class OrderService {
         return cartItems.stream()
                 .map(cartItem -> {
                     Menu menu = cartItem.getMenu();
-                    int price = menu.getPrice();
                     int quantity = cartItem.getQuantity();
                     return OrderItem.builder()
                             .menuName(menu.getName())
                             .quantity(quantity)
-                            .price(price * quantity)
+                            .price(menu.getPrice() * quantity)
                             .order(order)
                             .menu(menu)
                             .build();

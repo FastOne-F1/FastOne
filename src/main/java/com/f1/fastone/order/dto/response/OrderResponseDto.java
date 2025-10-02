@@ -2,10 +2,12 @@ package com.f1.fastone.order.dto.response;
 
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@AllArgsConstructor
 public class OrderResponseDto {
 
     LocalDateTime createdDate;

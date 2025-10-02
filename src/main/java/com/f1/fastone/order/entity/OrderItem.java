@@ -48,13 +48,7 @@ public class OrderItem extends BaseEntity {
         }
     }
 
-    public OrderItemDto from() {
-        return OrderItemDto.builder()
-                .menuName(this.menuName)
-                .price(this.price)
-                .quantity(this.quantity)
-                .build();
-    }
+
 
 
 }
