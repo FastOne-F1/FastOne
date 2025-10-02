@@ -81,6 +81,7 @@ public class OrderService {
                     .toList();
     }
 
+    @Transactional
     public OrderResponseDto updateOrderStatus(UUID orderId, OrderStatusRequestDto requestDto) {
         OrderStatus status = requestDto.getOrderStatus();
 
