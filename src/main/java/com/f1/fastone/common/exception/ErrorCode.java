@@ -25,6 +25,9 @@ public enum ErrorCode {
     //menu
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "메뉴를 찾을 수 없습니다."),
 
+    //menu_category
+    MENU_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "MC001", "메뉴 카테고리를 찾을 수 없습니다."),
+
     //order
 
     //review

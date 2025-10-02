@@ -57,4 +57,13 @@ public class Menu extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private MenuCategory category;
+
+    public void update(String name, String description, int price, boolean soldOut, String imageUrl, MenuCategory category) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.soldOut = soldOut;
+        this.imageUrl = imageUrl;
+        this.category = category;
+    }
 }
