@@ -1,15 +1,9 @@
 package com.f1.fastone.order.entity;
 
-import com.f1.fastone.cart.entity.CartItem;
 import com.f1.fastone.common.entity.BaseEntity;
 import com.f1.fastone.menu.entity.Menu;
-import com.f1.fastone.order.dto.OrderItemDto;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Getter
 @Builder

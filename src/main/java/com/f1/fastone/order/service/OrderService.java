@@ -6,7 +6,6 @@ import com.f1.fastone.cart.repository.CartRepository;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.menu.entity.Menu;
-import com.f1.fastone.order.dto.OrderDto;
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
 import com.f1.fastone.order.entity.Order;
