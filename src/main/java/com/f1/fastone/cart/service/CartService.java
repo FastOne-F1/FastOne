@@ -1,6 +1,7 @@
 package com.f1.fastone.cart.service;
 
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
+import com.f1.fastone.cart.dto.response.CartResponseDto;
 import com.f1.fastone.cart.dto.response.ItemCreateResponseDto;
 import com.f1.fastone.cart.repository.CartRepository;
 import com.f1.fastone.menu.entity.Menu;
@@ -12,6 +13,7 @@ import com.f1.fastone.store.repository.StoreRepository;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,5 +53,9 @@ public class CartService {
 
     public void clearCart(String userId, UUID storeId) {
         cartRepository.clearCart(userId, String.valueOf(storeId));
+    }
+
+    public List<CartResponseDto> getCart(String userId) {
+        return cartRepository.findAllByUser(userId);
     }
 }

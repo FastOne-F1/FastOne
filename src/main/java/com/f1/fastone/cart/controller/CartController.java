@@ -1,10 +1,12 @@
 package com.f1.fastone.cart.controller;
 
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
-import com.f1.fastone.cart.dto.request.ItemQuantityUpdateRequest;
+import com.f1.fastone.cart.dto.request.ItemUpdateRequestDto;
+import com.f1.fastone.cart.dto.response.CartResponseDto;
 import com.f1.fastone.cart.dto.response.ItemCreateResponseDto;
 import com.f1.fastone.cart.service.CartService;
 import com.f1.fastone.common.dto.ApiResponse;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +31,7 @@ public class CartController {
     public ApiResponse<Void> updateQuantity(@AuthenticationPrincipal UserDetails user,
                                             @PathVariable UUID storeId,
                                             @PathVariable String menuId,
-                                            @RequestBody ItemQuantityUpdateRequest request) {
+                                            @RequestBody ItemUpdateRequestDto request) {
         cartService.setQuantity(user.getUsername(), storeId, menuId, request.quantity());
         return ApiResponse.success();
     }
@@ -47,5 +49,11 @@ public class CartController {
                                        @PathVariable UUID storeId) {
         cartService.clearCart(user.getUsername(), storeId);
         return ApiResponse.success();
+    }
+
+    @GetMapping()
+    public ApiResponse<List<CartResponseDto>> getCart(
+            @AuthenticationPrincipal UserDetails user) {
+        return ApiResponse.success(cartService.getCart(user.getUsername()));
     }
 }
