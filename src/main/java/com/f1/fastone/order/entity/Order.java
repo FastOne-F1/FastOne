@@ -60,4 +60,11 @@ public class Order extends BaseEntity {
 
     @OneToOne(mappedBy = "order")
     private Review review;
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems.clear();
+        this.orderItems.addAll(orderItems);
+        orderItems.forEach(orderItem -> orderItem.setOrder(this));
+    }
+
 }

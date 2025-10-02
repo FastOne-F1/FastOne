@@ -1,8 +1,8 @@
 package com.f1.fastone.order.dto;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
+@Getter
 public class PaymentDto {
-    private int totalPrice;
+    int totalPrice;
 }

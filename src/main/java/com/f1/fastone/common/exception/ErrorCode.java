@@ -33,6 +33,7 @@ public enum ErrorCode {
     ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C001", "장바구니를 찾을 수 없습니다."),
 
     //common
     BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "C001", "잘못된 요청입니다."),

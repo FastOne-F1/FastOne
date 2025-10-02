@@ -1,13 +1,13 @@
 package com.f1.fastone.order.dto;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
+@Getter
 public class ShipToDto {
-    private String name;
-    private String phone;
-    private String postalCode;
-    private String city;
-    private String address;
-    private String addressDetail;
+    String name;
+    String phone;
+    String postalCode;
+    String city;
+    String address;
+    String addressDetail;
 }

@@ -2,19 +2,24 @@ package com.f1.fastone.order.controller;
 
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
-import com.f1.fastone.order.dto.request.OrderCreateRequestDto;
+import com.f1.fastone.order.dto.request.OrderRequestDto;
+import com.f1.fastone.order.dto.response.OrderResponseDto;
+import com.f1.fastone.order.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
+    private final OrderService orderService;
+
     @PostMapping("")
     public ApiResponse<OrderResponseDto> createOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @RequestBody OrderCreateRequestDto requestDto) {
+                                                     @RequestBody OrderRequestDto requestDto) {
         OrderResponseDto response = orderService.createOrder(userDetails.getUsername(), requestDto);
         return ApiResponse.created(response);
     }

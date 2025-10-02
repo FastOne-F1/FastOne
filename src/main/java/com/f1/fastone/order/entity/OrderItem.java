@@ -1,13 +1,19 @@
 package com.f1.fastone.order.entity;
 
+import com.f1.fastone.cart.entity.CartItem;
 import com.f1.fastone.common.entity.BaseEntity;
 import com.f1.fastone.menu.entity.Menu;
-import com.f1.fastone.store.entity.Store;
+import com.f1.fastone.order.dto.OrderItemDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "p_order_item")
@@ -33,4 +39,22 @@ public class OrderItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
     private Menu menu;
+
+    public void setOrder(Order order) {
+        this.order = order;
+
+        if (!order.getOrderItems().contains(this)) {
+            order.getOrderItems().add(this);
+        }
+    }
+
+    public OrderItemDto from() {
+        return OrderItemDto.builder()
+                .menuName(this.menuName)
+                .price(this.price)
+                .quantity(this.quantity)
+                .build();
+    }
+
+
 }
