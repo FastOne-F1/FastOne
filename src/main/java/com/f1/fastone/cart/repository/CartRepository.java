@@ -2,6 +2,7 @@ package com.f1.fastone.cart.repository;
 
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
+import com.f1.fastone.store.entity.Store;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -32,20 +33,12 @@ public class CartRepository {
         this.set = redisTemplate.opsForSet();
     }
 
-    public void addMenu(String userId, String storeId, String menuId, String jsonValue) {
+    public void addMenu(String userId, Store store, String menuId, String jsonValue) {
         String idx = idxKey(userId);
-        String cart = cartKey(userId, storeId);
+        String cart = cartKey(userId, store.getId().toString());
 
-        // 장바구니(해시)가 없으면 새로 생성
-        if (!redisTemplate.hasKey(cart)) {
-            hash.put(cart, "__init", "1");
-        }
-
-        set.add(idx, storeId);
-
-        if (hash.hasKey(cart, "__init")) {
-            hash.delete(cart, "__init");
-        }
+        hash.putIfAbsent(cart, "__storeName", store.getName());
+        set.add(idx, store.getId().toString());
 
         hash.put(cart, menuId, jsonValue);
 

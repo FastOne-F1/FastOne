@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public record ItemCreateRequestDto(
         @NotBlank UUID menuId,
-        @NotNull @Min(1) Integer quantity
+        @NotNull @Min(1) int quantity
 ) {}
