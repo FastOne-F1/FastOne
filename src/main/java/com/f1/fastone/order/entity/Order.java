@@ -23,6 +23,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private OrderStatus status = OrderStatus.CREATED;
@@ -55,6 +56,7 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    @Builder.Default
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -62,9 +64,13 @@ public class Order extends BaseEntity {
     private Review review;
 
     public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems.clear();
-        this.orderItems.addAll(orderItems);
-        orderItems.forEach(orderItem -> orderItem.setOrder(this));
+        if (orderItems != null) {
+            this.orderItems.clear();
+            this.orderItems.addAll(orderItems);
+            orderItems.forEach(orderItem -> orderItem.setOrder(this));
+        }
     }
+
+
 
 }

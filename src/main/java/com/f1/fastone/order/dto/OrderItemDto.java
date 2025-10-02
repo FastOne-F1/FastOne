@@ -1,8 +1,14 @@
 package com.f1.fastone.order.dto;
 
 import com.f1.fastone.order.entity.OrderItem;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class OrderItemDto {
     private String menuName;
@@ -19,3 +25,4 @@ public class OrderItemDto {
     }
 
 }
+
