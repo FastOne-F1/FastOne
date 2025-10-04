@@ -33,14 +33,13 @@ public class CartService {
         Menu menu = menuRepository.findByIdAndStoreId(requestDto.menuId(), storeId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
 
-        int priceView = menu.getPrice();
         Instant now = Instant.now();
         LocalDateTime addedAt = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
         String json = String.format("{\"n\":\"%s\",\"img\":\"%s\",\"p\":%d,\"q\":%d,\"a\":%d}",
                 menu.getName(), menu.getImageUrl(), menu.getPrice(), requestDto.quantity(), now.toEpochMilli());
         cartRepository.addMenu(userId, store, String.valueOf(requestDto.menuId()), json);
 
-        return ItemCreateResponseDto.from(String.valueOf(storeId), String.valueOf(requestDto.menuId()), requestDto.quantity(), priceView, addedAt);
+        return ItemCreateResponseDto.from(menu, requestDto.quantity(), addedAt);
     }
 
     public void setQuantity(String userId, UUID storeId, String menuId, int quantity) {
