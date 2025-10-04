@@ -33,7 +33,7 @@ public class SignUpRequestDto {
 
     private Boolean isPublic = true;
 
-    private boolean admin = false;
+    private boolean master = false;
 
-    private String adminToken = "";
+    private String masterToken = "";
 }

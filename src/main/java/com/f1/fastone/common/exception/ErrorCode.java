@@ -1,7 +1,6 @@
 package com.f1.fastone.common.exception;
 
 import lombok.Getter;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -10,7 +9,7 @@ public enum ErrorCode {
     USER_EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST.value(), "U001", "이미 가입된 이메일입니다."),
     USER_USERNAME_DUPLICATED(HttpStatus.BAD_REQUEST.value(), "U002", "이미 사용 중인 사용자명입니다."),
     USER_INVALID_PASSWORD(HttpStatus.BAD_REQUEST.value(), "U003", "비밀번호가 일치하지 않습니다."),
-    USER_INVALID_ADMIN_TOKEN(HttpStatus.BAD_REQUEST.value(), "U004", "관리자 암호가 틀려 등록이 불가능합니다."),
+    USER_INVALID_MASTER_TOKEN(HttpStatus.BAD_REQUEST.value(), "U004", "관리자 암호가 틀려 등록이 불가능합니다."),
     USER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "U005", "권한이 없습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "U006", "유저를 찾을 수 없습니다."),
 
@@ -19,8 +18,8 @@ public enum ErrorCode {
     AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A003", "만료된 토큰입니다."),
 
 
-    //store
-    STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "가게를 찾을 수 없습니다."),
+    // store
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "스토어를 찾을 수 없습니다."),
 
     //menu
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "메뉴를 찾을 수 없습니다."),
@@ -30,7 +29,12 @@ public enum ErrorCode {
 
     //order
 
-    //review
+    // review
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "R001", "리뷰를 찾을 수 없습니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT.value(), "R002", "이미 리뷰가 존재합니다."),
+    REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "R003", "본인 리뷰만 접근할 수 있습니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "O001", "주문을 찾을 수 없습니다."),
+    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
 

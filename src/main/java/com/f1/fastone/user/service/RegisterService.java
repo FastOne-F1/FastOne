@@ -17,8 +17,8 @@ public class RegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ADMIN_TOKEN
-    private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
+    // MASTER_TOKEN
+    private final String MASTER_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     @Transactional
     public void signup(SignUpRequestDto requestDto) {
@@ -38,11 +38,13 @@ public class RegisterService {
 
         // 사용자 ROLE 확인
         UserRole role = UserRole.CUSTOMER;
-        if (requestDto.isAdmin()) {
-            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                throw new IllegalArgumentException(ErrorCode.USER_INVALID_ADMIN_TOKEN.getMessage());
+        if (requestDto.isMaster()) {
+            if (requestDto.getMasterToken() == null ||
+                    requestDto.getMasterToken().trim().isEmpty() ||
+                    !MASTER_TOKEN.equals(requestDto.getMasterToken())) {
+                throw new IllegalArgumentException(ErrorCode.USER_INVALID_MASTER_TOKEN.getMessage());
             }
-            role = UserRole.ADMIN;
+            role = UserRole.MASTER;  // MASTER 역할 부여
         }
 
         // 사용자 등록 - Builder 패턴 사용

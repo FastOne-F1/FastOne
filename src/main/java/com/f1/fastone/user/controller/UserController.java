@@ -1,19 +1,22 @@
 package com.f1.fastone.user.controller;
 
 import com.f1.fastone.common.auth.jwt.JwtUtil;
+import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
-import com.f1.fastone.user.dto.LoginRequestDto;
+import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.user.dto.SignUpRequestDto;
-import com.f1.fastone.user.entity.User;
+import com.f1.fastone.user.dto.UserProfileDto;
+import com.f1.fastone.user.dto.UserProfileUpdateRequestDto;
 import com.f1.fastone.user.repository.UserRepository;
 import com.f1.fastone.user.service.RegisterService;
+import com.f1.fastone.user.service.UserProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +32,7 @@ public class UserController {
     private final RegisterService registerService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserProfileService userProfileService;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
@@ -44,38 +48,51 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
     }
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인", description = "사용자 로그인 후 JWT 토큰 반환")
-    public ResponseEntity<ApiResponse<String>> login(
-            @RequestBody LoginRequestDto requestDto,
-            HttpServletResponse response) {
 
-        log.info("로그인 요청: username={}", requestDto.getUsername());
+    @GetMapping("/me")
+    @Operation(summary = "내 프로필 조회", description = "로그인한 사용자의 프로필 정보를 조회합니다 (주소 목록 포함)")
+    public ResponseEntity<ApiResponse<UserProfileDto>> getMyProfile(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        if (userDetails == null) {
+            ErrorCode errorCode = ErrorCode.AUTH_INVALID_TOKEN;
+            return ResponseEntity.status(errorCode.getStatus())
+                    .body(new ApiResponse<>(errorCode.getStatus(), errorCode.getMessage(), null));
+        }
+        UserProfileDto userProfile = userProfileService.getMyProfile(userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(userProfile));
+    }
 
-        // 사용자 찾기 & 비밀번호 검증
-        Optional<User> userOptional = userRepository.findByUsername(requestDto.getUsername());
-        if (userOptional.isEmpty() ||
-                !passwordEncoder.matches(requestDto.getPassword(), userOptional.get().getPassword())) {
-            return ResponseEntity.status(401)
-                    .body(new ApiResponse<>(401, "로그인 실패", null));
+    @PutMapping("/me")
+    @Operation(summary = "내 프로필 수정", description = "로그인한 사용자의 기본 프로필 정보를 수정합니다 (주소 제외)")
+    public ResponseEntity<ApiResponse<UserProfileDto>> updateMyProfile(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody UserProfileUpdateRequestDto requestDto) {
+
+        if (userDetails == null) {
+            ErrorCode errorCode = ErrorCode.AUTH_INVALID_TOKEN;
+            return ResponseEntity.status(errorCode.getStatus())
+                    .body(new ApiResponse<>(errorCode.getStatus(), errorCode.getMessage(), null));
+        }
+        UserProfileDto updatedProfile = userProfileService.updateMyProfile(userDetails.getUsername(), requestDto);
+        return ResponseEntity.ok(ApiResponse.success(updatedProfile));
+    }
+
+    @DeleteMapping("/me")
+    @Operation(summary = "회원 탈퇴", description = "로그인한 사용자의 계정을 삭제(탈퇴)합니다")
+    public ResponseEntity<ApiResponse<String>> deleteMyAccount(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        if (userDetails == null) {
+            ErrorCode errorCode = ErrorCode.AUTH_INVALID_TOKEN;
+            return ResponseEntity.status(errorCode.getStatus())
+                    .body(new ApiResponse<>(errorCode.getStatus(), errorCode.getMessage(), null));
         }
 
-        User user = userOptional.get();
+        userProfileService.deleteMyAccount(userDetails.getUsername());
 
-        // JWT 토큰 생성
-        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
-
-        // 쿠키에도 저장
-        jwtUtil.addJwtToCookie(token, response);
-
-        log.info("로그인 성공: username={}", user.getUsername());
-
-        return ResponseEntity.ok(ApiResponse.success(token));
+        return ResponseEntity.ok(ApiResponse.success("회원 탈퇴가 완료되었습니다."));
     }
 
-    @PostMapping("/test-auth")
-    @Operation(summary = "인증 테스트", description = "JWT 토큰 인증을 테스트합니다")
-    public ResponseEntity<ApiResponse<String>> testAuth() {
-        return ResponseEntity.ok(ApiResponse.success("인증이 성공했습니다."));
-    }
+
+
 }

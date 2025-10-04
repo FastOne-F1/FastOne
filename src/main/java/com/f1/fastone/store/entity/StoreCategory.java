@@ -18,4 +18,10 @@ public class StoreCategory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
+
+    public static StoreCategory of(String name) {
+        StoreCategory category = new StoreCategory();
+        category.storeCategoryName = name;
+        return category;
+    }
 }
