@@ -22,5 +22,4 @@ public class OrderResponseDto {
     List<OrderItemDto> orderItems;
     PaymentDto payment;
     OrderStatus orderStatus;
-
 }

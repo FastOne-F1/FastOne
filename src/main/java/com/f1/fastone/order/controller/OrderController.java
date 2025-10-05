@@ -4,12 +4,14 @@ import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.order.dto.request.OrderRequestDto;
 import com.f1.fastone.order.dto.request.OrderStatusRequestDto;
+import com.f1.fastone.order.dto.response.OrderDetailResponseDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
 import com.f1.fastone.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -27,16 +29,29 @@ public class OrderController {
         return ApiResponse.created(response);
     }
 
+    @GetMapping("")
+    public ApiResponse<List<OrderResponseDto>> getOrders(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<OrderResponseDto> response = orderService.getOrders();
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/{orderId}")
+    public ApiResponse<OrderDetailResponseDto> getOrderDetail(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @PathVariable("orderId") UUID orderId) {
+        OrderDetailResponseDto response = orderService.getOrderDetail(orderId);
+        return ApiResponse.success(response);
+    }
+
     @PatchMapping("/{orderId}/status")
     public ApiResponse<OrderResponseDto> updateOrderStatus(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                           @PathVariable UUID orderId, @RequestBody OrderStatusRequestDto requestDto) {
+                                                           @PathVariable("orderId") UUID orderId, @RequestBody OrderStatusRequestDto requestDto) {
         OrderResponseDto response = orderService.updateOrderStatus(orderId, requestDto);
         return ApiResponse.success(response);
     }
 
     @DeleteMapping("/{orderId}/cancel")
     public ApiResponse<Void> cancelOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @PathVariable UUID orderId) {
+                                                     @PathVariable("orderId") UUID orderId) {
         orderService.deleteOrder(orderId);
         return ApiResponse.success();
 

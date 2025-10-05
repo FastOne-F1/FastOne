@@ -8,7 +8,9 @@ import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.menu.entity.Menu;
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
+import com.f1.fastone.order.dto.ShipToDto;
 import com.f1.fastone.order.dto.request.OrderStatusRequestDto;
+import com.f1.fastone.order.dto.response.OrderDetailResponseDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
 import com.f1.fastone.order.entity.Order;
 import com.f1.fastone.order.entity.OrderItem;
@@ -24,6 +26,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,7 +63,24 @@ public class OrderService {
         PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
 
         return new OrderResponseDto(order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
+    }
 
+    @Transactional
+    public List<OrderResponseDto> getOrders() {
+        return null;
+    }
+
+    @Transactional
+    public OrderDetailResponseDto getOrderDetail(UUID orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND));
+
+        ShipToDto shipToDto = new ShipToDto(
+            order.getShipToName(), order.getShipToPhone(), order.getPostalCode(), order.getCity(), order.getAddress(), order.getAddressDetail()
+        );
+        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+        List<OrderItemDto> orderItemDtos = order.getOrderItems().stream().map(OrderItemDto::from).toList();
+
+        return OrderDetailResponseDto.from(order, shipToDto, paymentDto, orderItemDtos);
     }
 
     @Transactional

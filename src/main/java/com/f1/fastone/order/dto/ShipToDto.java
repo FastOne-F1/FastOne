@@ -1,7 +1,9 @@
 package com.f1.fastone.order.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class ShipToDto {
     String name;
