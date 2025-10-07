@@ -26,7 +26,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,8 +65,27 @@ public class OrderService {
     }
 
     @Transactional
-    public List<OrderResponseDto> getOrders() {
-        return null;
+    public List<OrderResponseDto> getOrders(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+        List<Order> orders = user.getOrders(); // null;
+
+//        switch (username) {
+//            case "MANAGER" -> orders = orderRepository.findAll();
+//            case "OWNER" -> {
+//                // 가게별로 Order에 있는 가게 주인과 Username 또는 UserDetails 대조해보고 조회하기
+//            }
+//            case "CUSTOMER" -> orders = user.getOrders();
+//            default -> {
+//            }
+//        }
+
+        return orders.stream().map(order ->
+                OrderResponseDto.from(
+                        order,
+                        new PaymentDto(order.getTotalPrice()),
+                        order.getOrderItems().stream().map(OrderItemDto::from).toList()
+                )
+        ).toList();
     }
 
     @Transactional

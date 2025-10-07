@@ -31,7 +31,8 @@ public class OrderController {
 
     @GetMapping("")
     public ApiResponse<List<OrderResponseDto>> getOrders(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<OrderResponseDto> response = orderService.getOrders();
+        String username = userDetails.getUsername();
+        List<OrderResponseDto> response = orderService.getOrders(username);
         return ApiResponse.success(response);
     }
 
