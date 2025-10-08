@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -15,14 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderResponseDto {
 
+    UUID orderId;
     LocalDateTime createdDate;
     String storeName;
     List<OrderItemDto> orderItems;
     PaymentDto payment;
     OrderStatus orderStatus;
 
+
     static public OrderResponseDto from(Order order, PaymentDto paymentDto, List<OrderItemDto> orderItems) {
         return OrderResponseDto.builder()
+                .orderId(order.getId())
                 .createdDate(order.getCreatedAt())
                 .orderStatus(order.getStatus())
                 .storeName(order.getStore().getName())

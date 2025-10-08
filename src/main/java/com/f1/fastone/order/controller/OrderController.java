@@ -39,21 +39,22 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ApiResponse<OrderDetailResponseDto> getOrderDetail(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                         @PathVariable("orderId") UUID orderId) {
-        OrderDetailResponseDto response = orderService.getOrderDetail(orderId);
+        String username = userDetails.getUsername();
+        OrderDetailResponseDto response = orderService.getOrderDetail(username, orderId);
         return ApiResponse.success(response);
     }
 
     @PatchMapping("/{orderId}/status")
     public ApiResponse<OrderResponseDto> updateOrderStatus(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                            @PathVariable("orderId") UUID orderId, @RequestBody OrderStatusRequestDto requestDto) {
-        OrderResponseDto response = orderService.updateOrderStatus(orderId, requestDto);
+        OrderResponseDto response = orderService.updateOrderStatus(userDetails, orderId, requestDto);
         return ApiResponse.success(response);
     }
 
     @DeleteMapping("/{orderId}/cancel")
     public ApiResponse<Void> cancelOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                      @PathVariable("orderId") UUID orderId) {
-        orderService.deleteOrder(orderId);
+        orderService.deleteOrder(userDetails, orderId);
         return ApiResponse.success();
 
     }
