@@ -28,6 +28,9 @@ public enum ErrorCode {
     MENU_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "MC001", "메뉴 카테고리를 찾을 수 없습니다."),
 
     //order
+    ORDER_DETAIL_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O003", "본인 주문만 접근할 수 있습니다."),
+    ORDER_UPDATE_DENIED(HttpStatus.FORBIDDEN.value(), "O004", "주문 상태 변경 권한이 없습니다."),
+    ORDER_DELETE_DENIED(HttpStatus.FORBIDDEN.value(), "O005", "음식이 이미 조리 중입니다"),
 
     // review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "R001", "리뷰를 찾을 수 없습니다."),
@@ -37,6 +40,7 @@ public enum ErrorCode {
     ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C001", "장바구니를 찾을 수 없습니다."),
 
     //common
     BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "C001", "잘못된 요청입니다."),

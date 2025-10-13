@@ -3,7 +3,6 @@ package com.f1.fastone.store.entity;
 import com.f1.fastone.common.entity.BaseEntity;
 import com.f1.fastone.menu.entity.Menu;
 import com.f1.fastone.user.entity.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
