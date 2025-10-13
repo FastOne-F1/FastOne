@@ -67,6 +67,11 @@ public class OrderService {
         order.setOrderItems(orderItems);
 
         PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+
+        // Cart 및 Cart Item 삭제
+        cartRepository.delete(cart);
+
+
         return new OrderResponseDto(order.getId(), order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
     }
 
