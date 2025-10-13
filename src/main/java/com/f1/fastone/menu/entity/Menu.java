@@ -66,4 +66,8 @@ public class Menu extends BaseEntity {
         this.imageUrl = imageUrl;
         this.category = category;
     }
+
+    public void updateSoldOut(boolean soldOut) {
+        this.soldOut = soldOut;
+    }
 }

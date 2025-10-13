@@ -32,16 +32,8 @@ public class MenuService {
         Store store = storeRepository.findById(dto.storeId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
 
-        // 카테고리 null 허용
-        MenuCategory category = null;
-        if (dto.categoryId() != null) {
-            category = menuCategoryRepository.findById(dto.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
-        }
-
-        // menu_category 생성 시 수정
-//        MenuCategory category = menuCategoryRepository.findById(dto.categoryId())
-//                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
+        MenuCategory category = menuCategoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
 
 
     Menu menu = new Menu(
@@ -75,9 +67,16 @@ public class MenuService {
         return ApiResponse.success(list);
     }
 
+    // 메뉴 전체 수정
     public ApiResponse<MenuResponseDto> updateMenu(UUID id, MenuUpdateRequestDto dto) {
         Menu menu = menuRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
+
+        MenuCategory category = null;
+        if (dto.categoryId() != null) {
+            category = menuCategoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
+        }
 
         menu.update(
                 dto.name(),
@@ -85,13 +84,26 @@ public class MenuService {
                 dto.price(),
                 dto.soldOut(),
                 dto.imageUrl(),
-                null //category 연결시 필요
+                category
         );
 
         Menu updated = menuRepository.save(menu);
         return ApiResponse.success(toResponseDto(updated));
     }
 
+    // 메뉴 품절 여부 수정
+    public ApiResponse<MenuResponseDto> updateSoldOutStatus(UUID id, boolean soldOut) {
+        Menu menu = menuRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
+
+        menu.updateSoldOut(soldOut);
+
+        Menu updated = menuRepository.save(menu);
+        return ApiResponse.success(toResponseDto(updated));
+
+    }
+
+    // 메뉴 삭제
     public ApiResponse<MenuResponseDto> deleteMenu(UUID id) {
         Menu menu = menuRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
@@ -111,6 +123,7 @@ public class MenuService {
                 menu.getImageUrl()
         );
     }
+
 
 
 }

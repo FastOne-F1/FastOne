@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     //menu_category
     MENU_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "MC001", "메뉴 카테고리를 찾을 수 없습니다."),
+    MENU_CATEGORY_ALREADY_EXISTS(HttpStatus.NOT_FOUND.value(), "MC002", "이미 존재하는 카테고리 입니다."),
 
     //order
 
