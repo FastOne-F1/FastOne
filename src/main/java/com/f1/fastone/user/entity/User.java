@@ -79,4 +79,8 @@ public class User extends BaseEntity {
         this.isPublic = isPublic;
     }
 
+    public void updateRole(UserRole role) {
+        this.role = role;
+    }
+
 }
