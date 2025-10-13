@@ -27,6 +27,7 @@ public class StoreController {
 
     private final StoreService storeService;
 
+    // 새로운 가게 등록
     @PostMapping
     @PreAuthorize("hasAnyRole('CUSTOMER', 'OWNER', 'MANAGER', 'MASTER')")
     @Operation(summary = "가게 등록", description = "새로운 가게를 등록합니다. CUSTOMER는 OWNER로 승격됩니다.")
@@ -38,6 +39,7 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 가게 단일 조회
     @GetMapping("/{storeId}")
     @Operation(summary = "가게 조회", description = "특정 ID의 가게 정보를 조회합니다.")
     public ResponseEntity<ApiResponse<StoreResponseDto>> getStore(@PathVariable UUID storeId) {
@@ -45,6 +47,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    // 내 지역 가게 목록 조회
     @GetMapping("/my-area")
     @Operation(summary = "내 지역 가게 조회", description = "사용자 주소 기반으로 해당 지역의 가게 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<StoreResponseDto>>> getStoresByUserAddress(
@@ -53,6 +56,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    // 전체 가게 목록 조회
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
     @Operation(summary = "가게 전체 조회 (관리자용)", description = "관리자만 접근 가능한 전체 가게 목록을 조회합니다.")
@@ -61,6 +65,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    // 가게 정보 수정
     @PutMapping("/{storeId}")
     @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     @Operation(summary = "가게 수정", description = "가게 정보를 수정합니다. 본인 가게 또는 관리자만 수정 가능합니다.")
@@ -73,6 +78,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    // 가게 삭제
     @DeleteMapping("/{storeId}")
     @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
     @Operation(summary = "가게 삭제", description = "가게를 삭제합니다. 본인 가게 또는 관리자만 삭제 가능합니다.")

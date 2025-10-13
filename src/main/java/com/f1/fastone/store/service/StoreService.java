@@ -32,6 +32,7 @@ public class StoreService {
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
 
+    // 새로운 가게 생성
     @Transactional
     public ApiResponse<StoreResponseDto> createStore(String username, StoreCreateRequestDto dto) {
         // User 조회
@@ -43,7 +44,7 @@ public class StoreService {
             user.updateRole(UserRole.OWNER);
         }
 
-        // StoreCategory 조회 (선택사항)
+        // StoreCategory 조회
         StoreCategory category = null;
         if (dto.categoryId() != null) {
             category = storeCategoryRepository.findById(dto.categoryId())
@@ -57,6 +58,7 @@ public class StoreService {
         return ApiResponse.created(StoreResponseDto.fromEntity(savedStore));
     }
 
+    // 단일 가게 조회
     public ApiResponse<StoreResponseDto> getStore(UUID id) {
         Store store = storeRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
@@ -64,6 +66,7 @@ public class StoreService {
         return ApiResponse.success(StoreResponseDto.fromEntity(store));
     }
 
+    // 모든 가게 목록 조회 (관리자용)
     public ApiResponse<List<StoreResponseDto>> getAllStores() {
         List<Store> stores = storeRepository.findAllByDeletedAtIsNull();
         List<StoreResponseDto> responseDtos = stores.stream()
@@ -73,6 +76,7 @@ public class StoreService {
         return ApiResponse.success(responseDtos);
     }
 
+    // 가게 정보 수정
     @Transactional
     public ApiResponse<StoreResponseDto> updateStore(String username, UUID id, StoreUpdateRequestDto dto) {
         // User 조회
@@ -89,7 +93,7 @@ public class StoreService {
             throw new EntityNotFoundException(ErrorCode.ACCESS_DENIED);
         }
 
-        // StoreCategory 조회 (선택사항)
+        // StoreCategory 조회
         StoreCategory category = null;
         if (dto.categoryId() != null) {
             category = storeCategoryRepository.findById(dto.categoryId())
@@ -115,6 +119,7 @@ public class StoreService {
         return ApiResponse.success(StoreResponseDto.fromEntity(updatedStore));
     }
 
+    // 가게 삭제
     @Transactional
     public ApiResponse<Void> deleteStore(String username, UUID id) {
         // User 조회
