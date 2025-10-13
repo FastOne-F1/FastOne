@@ -8,12 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 가게 검색 요청 DTO
- * - 상호명, 주소로 검색
- * - 카테고리별, 운영상태별 필터링
- * - 페이징 및 정렬 옵션 제공
- */
 @Getter
 @Builder
 @NoArgsConstructor
@@ -29,8 +23,6 @@ public class StoreSearchRequestDto {
     private String keyword;
     
     private Long categoryId;
-    
-    private Boolean isOpen;
     
     @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다.")
     private Integer page;
@@ -83,8 +75,4 @@ public class StoreSearchRequestDto {
         return categoryId != null;
     }
     
-    // 운영상태 필터가 있는지 확인
-    public boolean hasStatusFilter() {
-        return isOpen != null;
-    }
 }

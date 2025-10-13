@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// 가게 검색 결과 응답 DTO(검색된 가게 목록, 페이징 정보)
 @Getter
 @Builder
 @NoArgsConstructor
@@ -43,12 +42,12 @@ public class StoreSearchResponseDto {
                 .longitude(store.getLongitude())
                 .openTime(store.getOpenTime())
                 .closeTime(store.getCloseTime())
-                .isOpen(null) // Store 엔티티에 isOpen 필드가 없음 - 추후 추가 예정
+                .isOpen(true) // 기본값으로 영업중으로 설정
                 .categoryId(store.getCategory() != null ? store.getCategory().getId() : null)
                 .categoryName(store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null)
                 .averageRating(null) // 추후 StoreRating 연동 시 구현
                 .reviewCount(0) // 추후 Review 도메인 연동 시 구현
-                .favoriteCount(0) // Store 엔티티에 favoriteCount 필드가 없음 - 추후 추가 예정
+                .favoriteCount(0) // 추후 수정
                 .build();
     }
 }
