@@ -132,4 +132,30 @@ public class CartRepository {
 
         return carts;
     }
+
+
+    public CartResponseDto findByUserAndStore(String userId, String storeId) {
+        String cart = cartKey(userId, storeId);
+        Map<String, String> entries = hash.entries(cart);
+
+        if (entries == null || entries.isEmpty()) {
+            throw new EntityNotFoundException(ErrorCode.CART_NOT_FOUND);
+        }
+
+        String storeName = entries.remove("__storeName");
+        List<CartItemResponseDto> items = new ArrayList<>();
+
+        for (Map.Entry<String, String> e : entries.entrySet()) {
+            try {
+                Map<String, Object> map = objectMapper.readValue(e.getValue(), Map.class);
+                items.add(CartItemResponseDto.from(e.getKey(), map));
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+
+        redisTemplate.expire(cart, CART_TTL);
+
+        return CartResponseDto.from(storeId, storeName, items);
+    }
 }

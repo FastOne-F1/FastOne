@@ -1,16 +1,19 @@
 package com.f1.fastone.order.service;
 
-import com.f1.fastone.cart.entity.Cart;
-import com.f1.fastone.cart.entity.CartItem;
+import com.f1.fastone.cart.dto.response.CartItemResponseDto;
+import com.f1.fastone.cart.dto.response.CartResponseDto;
 import com.f1.fastone.cart.repository.CartRepository;
+import com.f1.fastone.cart.service.CartService;
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.common.exception.custom.ServiceException;
 import com.f1.fastone.menu.entity.Menu;
+import com.f1.fastone.menu.repository.MenuRepository;
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
 import com.f1.fastone.order.dto.ShipToDto;
+import com.f1.fastone.order.dto.request.OrderRequestDto;
 import com.f1.fastone.order.dto.request.OrderStatusRequestDto;
 import com.f1.fastone.order.dto.response.OrderDetailResponseDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
@@ -20,21 +23,20 @@ import com.f1.fastone.order.entity.OrderStatus;
 import com.f1.fastone.order.repository.OrderItemRepository;
 import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.store.entity.Store;
-import com.f1.fastone.order.dto.request.OrderRequestDto;
 import com.f1.fastone.store.repository.StoreRepository;
 import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserRole;
 import com.f1.fastone.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -47,21 +49,32 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
+    private final MenuRepository menuRepository;
+    private final CartJpaRepository cartJpaRepository;
+    private final CartService cartService;
+
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
+
+
         // User(CUSTOMER), 가게, 장바구니 조회
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
         Store store = storeRepository.findById(requestDto.getStoreId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
-        Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
+
+        // from DB to Redis
+//        Cart cart = cartJpaRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
+//        syncCartToRedis(cart);
+
+        CartResponseDto cartDto = cartRepository.findByUserAndStore(user.getUsername(), store.getId().toString());
 
         // Order 생성
         Order order = requestDto.toEntity(user, store);
         orderRepository.save(order);
 
         // Order Item 생성
-        List<CartItem> cartItems = cart.getItems();
-        List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
+        List<OrderItem> orderItems = convertCartToOrder(order, cartDto.items());
         List<OrderItemDto> orderItemDtos = orderItems.stream().peek(orderItemRepository::save).map(OrderItemDto::from).toList();
 
         order.setOrderItems(orderItems);
@@ -69,8 +82,7 @@ public class OrderService {
         PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
 
         // Cart 및 Cart Item 삭제
-        cartRepository.delete(cart);
-
+        cartService.clearCart(user.getUsername(), store.getId());
 
         return new OrderResponseDto(order.getId(), order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
     }
@@ -189,18 +201,47 @@ public class OrderService {
         }
     }
 
-    private List<OrderItem> convertCartToOrder(Order order, List<CartItem> cartItems) {
+
+    private List<OrderItem> convertCartToOrder(Order order, List<CartItemResponseDto> cartItems) {
         return cartItems.stream()
-                .map(cartItem -> {
-                    Menu menu = cartItem.getMenu();
+                .map(cartItemDto -> {
+                    // 메뉴 엔티티 조회
+                    Menu menu = menuRepository.findById(UUID.fromString(cartItemDto.menuId()))
+                            .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_NOT_FOUND));
+
+                    // OrderItem 생성
                     return OrderItem.builder()
                             .menuName(menu.getName())
-                            .quantity(cartItem.getQuantity())
-                            .price(menu.getPrice())
+                            .quantity(cartItemDto.quantity())
+                            .price((int) cartItemDto.priceSnapshot())
                             .order(order)
                             .menu(menu)
                             .build();
                 })
                 .toList();
     }
+
+
+    // from DB to Redis
+//    public void syncCartToRedis(Cart cart) {
+//        String userId = cart.getUser().getUsername();
+//        String storeId = cart.getStore().getId().toString();
+//
+//        for (CartItem item : cart.getItems()) {
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("n", item.getMenu().getName());        // 메뉴 이름
+//            map.put("p", item.getMenu().getPrice());       // 가격
+//            map.put("q", item.getQuantity());              // 수량
+//            map.put("a", System.currentTimeMillis());      // 추가 시각 (epoch ms)
+//            map.put("img", item.getMenu().getImageUrl());  // 이미지 URL
+//
+//            try {
+//                String jsonValue = objectMapper.writeValueAsString(map);
+//                // Redis에 저장
+//                cartRepository.addMenu(userId, cart.getStore(), item.getMenu().getId().toString(), jsonValue);
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException("Redis 동기화 중 JSON 변환 오류", e);
+//            }
+//        }
+//    }
 }
