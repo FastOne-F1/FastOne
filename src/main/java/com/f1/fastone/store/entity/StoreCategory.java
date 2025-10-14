@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "p_store_category")
@@ -12,16 +14,21 @@ public class StoreCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, length = 80, unique = true)
     private String storeCategoryName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
+    @JoinColumn(name = "store_id", nullable = true)
     private Store store;
 
     public static StoreCategory of(String name) {
         StoreCategory category = new StoreCategory();
         category.storeCategoryName = name;
         return category;
+    }
+
+    // StoreCategory 수정용
+    public void updateName(String storeCategoryName) {
+        this.storeCategoryName = storeCategoryName;
     }
 }

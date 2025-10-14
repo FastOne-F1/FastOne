@@ -107,14 +107,21 @@ public class JwtUtil {
     }
 
 
-    // HttpServletRequest 에서 Cookie Value : JWT 가져오기
+    // HttpServletRequest 에서 JWT 가져오기 (Header 우선, Cookie 대체)
     public String getTokenFromRequest(HttpServletRequest req) {
+        // 1. Authorization 헤더에서 토큰 가져오기
+        String bearerToken = req.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken)) {
+            return bearerToken;  // "Bearer ..." 형태로 반환
+        }
+
+        // 2. Cookie에서 토큰 가져오기 (대체 방법)
         Cookie[] cookies = req.getCookies();
         if(cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
                     try {
-                        return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
+                        return URLDecoder.decode(cookie.getValue(), "UTF-8");
                     } catch (UnsupportedEncodingException e) {
                         return null;
                     }
