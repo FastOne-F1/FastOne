@@ -5,11 +5,15 @@ import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.user.dto.UserProfileDto;
 import com.f1.fastone.user.dto.UserProfileUpdateRequestDto;
 import com.f1.fastone.user.entity.User;
+import com.f1.fastone.user.entity.UserRole;
 import com.f1.fastone.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,5 +109,41 @@ public class UserProfileService {
 
         log.info("회원 탈퇴 완료: username={}", username);
     }
+
+    // 관리자용 - 전체 사용자 목록 조회
+    @Transactional(readOnly = true)
+    public List<UserProfileDto> findAllUsers(){
+        return userRepository.findAll().stream()
+                .map(UserProfileDto::from)
+                .collect(Collectors.toList());
+    }
+
+    // 관리자용 - 사용자 권한 변경
+    @Transactional
+    public UserProfileDto updateUserRole(String username, UserRole role){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        user.updateRole(role);
+        userRepository.save(user);
+
+        log.info("사용자 권한 변경: username={}, newRole={}", username, role);
+        return UserProfileDto.from(user);
+    }
+
+    // 관리자용 - 사용자 계정 삭제
+    @Transactional
+    public void deleteUserByAdmin(String username){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다."));
+
+        user.softDelete(username);
+        userRepository.save(user);
+
+        log.info("관리자에 의한 사용자 삭제: username={}", username);
+    }
+
+
+
+
 
 }

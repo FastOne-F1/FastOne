@@ -77,4 +77,21 @@ public class Store extends BaseEntity {
     public void addStoreRating(StoreRating storeRating) {
         this.storeRating = storeRating;
     }
+
+    public void update(String name, String phone, String postalCode, String city,
+                       String address, String addressDetail, BigDecimal latitude,
+                       BigDecimal longitude, LocalTime openTime, LocalTime closeTime,
+                       StoreCategory category) {
+        this.name = name;
+        this.phone = phone;
+        this.postalCode = postalCode;
+        this.city = city;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
+        this.category = category;
+    }
 }
