@@ -19,7 +19,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/store-categories")
-@Tag(name = "StoreCategory", description = "StoreCategory 등록 API")
 public class StoreCategoryController {
 
     private final StoreCategoryService storeCategoryService;

@@ -25,7 +25,6 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores")
-@Tag(name = "Store", description = "가게 관리 API")
 public class StoreController {
 
     private final StoreService storeService;
@@ -50,7 +49,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    // 내 지역 가게 목록 조회 (기존)
+    // 내 지역 가게 목록 조회
     @GetMapping("/my-area")
     @Operation(summary = "내 지역 가게 조회", description = "사용자 주소 기반으로 해당 지역의 가게 목록을 조회합니다.")
     public ResponseEntity<ApiResponse<List<StoreResponseDto>>> getStoresByUserAddress(
@@ -93,7 +92,7 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    // 전체 가게 목록 조회 (기존)
+    // 전체 가게 목록 조회
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
     @Operation(summary = "가게 전체 조회 (관리자용)", description = "관리자만 접근 가능한 전체 가게 목록을 조회합니다.")
