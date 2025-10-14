@@ -52,8 +52,6 @@ public class OrderService {
     private final MenuRepository menuRepository;
     private final CartService cartService;
 
-    private final ObjectMapper objectMapper;
-
     @Transactional
     public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
 
