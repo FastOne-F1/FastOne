@@ -50,7 +50,6 @@ public class OrderService {
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
     private final MenuRepository menuRepository;
-    private final CartJpaRepository cartJpaRepository;
     private final CartService cartService;
 
     private final ObjectMapper objectMapper;
