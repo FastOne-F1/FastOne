@@ -1,5 +1,6 @@
 package com.f1.fastone.cart.service;
 
+import com.f1.fastone.cart.dto.CartRedisItem;
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
 import com.f1.fastone.cart.dto.response.CartResponseDto;
 import com.f1.fastone.cart.repository.CartRepository;
@@ -68,7 +69,7 @@ class CartServiceTest {
 
         cartService.addItem("user1", storeId, request);
 
-        verify(cartRepository, times(1)).addMenu(eq("user1"), eq(store), eq(menuId.toString()), anyString());
+        verify(cartRepository, times(1)).addMenu(eq("user1"), eq(store), eq(menuId.toString()), any(CartRedisItem.class));
     }
 
     @Test

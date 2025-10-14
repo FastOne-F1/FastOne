@@ -2,6 +2,8 @@ package com.f1.fastone.cart.controller;
 
 import com.f1.fastone.store.entity.StoreCategory;
 import com.f1.fastone.user.entity.User;
+import com.f1.fastone.user.entity.UserRole;
+import com.f1.fastone.util.TestUserFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.f1.fastone.cart.dto.request.ItemCreateRequestDto;
 import com.f1.fastone.cart.dto.request.ItemUpdateRequestDto;
@@ -66,25 +68,35 @@ class CartControllerTest {
 
     @BeforeEach
     void setUp() {
-        User user = User.builder()
+        User mockUser = User.builder()
                 .username("testUser")
+                .password("encoded")
                 .email("test@example.com")
-                .password("password")
+                .role(UserRole.CUSTOMER)
                 .build();
-        Store store = TestStoreFactory.createStore(user, StoreCategory.of("패스트푸드"));
+
+        User mockOwner = User.builder()
+                .username("testOwner")
+                .email("test2@example.com")
+                .password("password")
+                .role(UserRole.OWNER)
+                .build();
+        Store store = TestStoreFactory.createStore(mockOwner, StoreCategory.of("패스트푸드"));
         menu = TestMenuFactory.createMenu(store);
         storeId = store.getId();
         menuId = menu.getId();
+
+        TestUserFactory.setSecurityContext(mockUser);
     }
 
     @Test
     @DisplayName("장바구니에 메뉴 추가 성공")
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "testUser")
     void addItem_Success() throws Exception {
         ItemCreateRequestDto request = new ItemCreateRequestDto(menuId, 2);
         ItemCreateResponseDto response = ItemCreateResponseDto.from(menu, 2, LocalDateTime.now());
 
-        Mockito.when(cartService.addItem(eq("user1"), eq(storeId), any(ItemCreateRequestDto.class)))
+        Mockito.when(cartService.addItem(eq("testUser"), eq(storeId), any(ItemCreateRequestDto.class)))
                 .thenReturn(response);
 
         mockMvc.perform(post("/carts/store/{storeId}/items", storeId)
@@ -126,10 +138,11 @@ class CartControllerTest {
 
     @Test
     @DisplayName("장바구니 전체 조회 성공")
-    @WithMockUser(username = "user1")
+    @WithMockUser(username = "testUser") // ✅ 수정
     void getCart_Success() throws Exception {
         CartResponseDto response = new CartResponseDto("storeId", "테스트 가게", List.of());
-        Mockito.when(cartService.getCart("user1")).thenReturn(List.of(response));
+        Mockito.when(cartService.getCart("testUser")) // ✅ 통일
+                .thenReturn(List.of(response));
 
         mockMvc.perform(get("/carts"))
                 .andExpect(status().isOk())
