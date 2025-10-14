@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ItemCreateRequestDto(
-        @NotBlank UUID menuId,
-        @NotNull @Min(1) int quantity
+        @NotNull UUID menuId,
+        @Min(1) int quantity
 ) {}
