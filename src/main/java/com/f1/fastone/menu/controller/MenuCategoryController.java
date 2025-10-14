@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/menucategories")
@@ -37,7 +38,7 @@ public class MenuCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> getMenuCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> getMenuCategoryById(@PathVariable UUID id) {
         MenuCategoryResponseDto category = menuCategoryService.getMenuCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success(category));
     }
@@ -45,7 +46,7 @@ public class MenuCategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> updateMenuCategory(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Validated @RequestBody MenuCategoryRequestDto dto
     ) {
         MenuCategoryResponseDto response = menuCategoryService.updateMenuCategory(userDetails.getUser(), id, dto);
@@ -55,7 +56,7 @@ public class MenuCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteMenuCategory(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id
+            @PathVariable UUID id
     ) {
         menuCategoryService.deleteMenuCategory(userDetails.getUser(), id);
         return ResponseEntity.ok(ApiResponse.success("삭제가 완료되었습니다."));

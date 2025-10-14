@@ -118,6 +118,31 @@ public class MenuServiceTest {
     }
 
     @Test
+    @DisplayName("메뉴 품절 여부 수정 성공")
+    void updateSoldOutStatus_success() throws Exception {
+        //given
+        UUID menuId = UUID.randomUUID();
+        UUID storeId = UUID.randomUUID();
+        Store store = createTestStore(storeId);
+
+        //기존 메뉴 : 품절 상태 false
+        Menu menu = new Menu("치킨", "맛있는 치킨", 18000, false, "imageUrl", store, null);
+        ReflectionTestUtils.setField(menu, "id", menuId);
+
+        //findById() 가 메뉴를 반환하도록 Mock 설정
+        given(menuRepository.findById(menuId)).willReturn(Optional.of(menu));
+        given(menuRepository.save(any(Menu.class))).willReturn(menu);
+
+        //when - soldOut = true로 변경
+        ApiResponse<MenuResponseDto> response = menuService.updateSoldOutStatus(menuId, true);
+
+        // then
+        assertThat(response.data().soldOut()).isTrue(); // 풀절 여부가 true로 수정됐는지
+        assertThat(response.data().name()).isEqualTo("치킨");
+
+    }
+
+    @Test
     @DisplayName("메뉴 삭제 성공")
     void deleteMenu_success() throws Exception{
         // given
