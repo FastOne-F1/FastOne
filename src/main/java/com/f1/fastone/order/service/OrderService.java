@@ -89,7 +89,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 orders = orderRepository.findAllByStore(store);
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 orders = orderRepository.findAll();
             }
         }
@@ -121,7 +121,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 order = orderRepository.findByIdAndStore(orderId, store).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_DETAIL_ACCESS_DENIED));
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_DETAIL_ACCESS_DENIED));
             }
         }
@@ -149,7 +149,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 order = orderRepository.findByIdAndStore(orderId, store).orElseThrow(() -> new ServiceException(ErrorCode.ORDER_UPDATE_DENIED));
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND));
             }
         }
@@ -183,7 +183,7 @@ public class OrderService {
                     throw new ServiceException(ErrorCode.ORDER_DELETE_DENIED);
                 }
             }
-            case OWNER, MANAGER -> {
+            case OWNER, MANAGER, MASTER -> {
                 orderRepository.delete(order);
             }
         }
