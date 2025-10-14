@@ -29,10 +29,13 @@ spring:
 
   ai:
     openai:
-      api-key: ${spring.ai.openai.api-key}
-      chat:
-        options:
-          model: gpt-4o
+      api-key: ${spring.ai.google.api-key}
+
+    vertex:
+      ai:
+        gemini:
+          project-id: ${spring.ai.vertex.ai.gemini.project-id}
+          location: ${spring.ai.google.location}
 
 # JWT 설정
 jwt:
