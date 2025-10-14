@@ -239,34 +239,53 @@ public class StoreService {
         Sort sort = createSort(searchRequest.getSortBy());
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
         
-        Page<Store> storePage;
+        // 통계 정보 포함 조회
+        Page<Object[]> storePage = storeRepository.findStoresWithStats(pageable);
         
-        // 검색 조건에 따라 적절한 메서드 호출
-        if (searchRequest.hasKeyword() && searchRequest.hasCategoryFilter()) {
-            // 키워드 + 카테고리 조합 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), searchRequest.getCategoryId(), pageable);
-        } else if (searchRequest.hasKeyword()) {
-            // 키워드만 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), pageable);
-        } else if (searchRequest.hasCategoryFilter()) {
-            // 카테고리만 필터링
-            storePage = storeRepository.findByCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getCategoryId(), pageable);
-        } else {
-            // 전체 조회 (도시별)
-            List<Store> stores = storeRepository.findByCityAndDeletedAtIsNull(city);
-            // List를 Page로 변환 (간단한 구현)
-            int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), stores.size());
-            List<Store> pageContent = stores.subList(start, end);
-            storePage = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, stores.size());
-        }
+        // 도시별 필터링 및 검색 조건 적용
+        List<Object[]> filteredResults = storePage.getContent().stream()
+                .filter(result -> {
+                    Store store = (Store) result[0];
+                    
+                    // 도시 필터링
+                    if (!store.getCity().equals(city)) {
+                        return false;
+                    }
+                    
+                    // 키워드 검색
+                    if (searchRequest.hasKeyword()) {
+                        String keyword = searchRequest.getKeyword().toLowerCase();
+                        if (!store.getName().toLowerCase().contains(keyword)) {
+                            return false;
+                        }
+                    }
+                    
+                    // 카테고리 필터링
+                    if (searchRequest.hasCategoryFilter()) {
+                        if (store.getCategory() == null || !store.getCategory().getId().equals(searchRequest.getCategoryId())) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .toList();
+        
+        // 필터링된 결과를 Page로 변환
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredResults.size());
+        List<Object[]> pageContent = filteredResults.subList(start, end);
+        Page<Object[]> filteredPage = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, filteredResults.size());
         
         // 응답 DTO 변환
         StoreSearchPageResponseDto response = StoreSearchPageResponseDto.fromPage(
-                storePage, StoreSearchResponseDto::fromEntity);
+                filteredPage, result -> {
+                    Store store = (Store) result[0];
+                    Long favoriteCount = (Long) result[1];
+                    BigDecimal averageRating = (BigDecimal) result[2];
+                    Integer reviewCount = (Integer) result[3];
+                    return StoreSearchResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount);
+                });
         
         return ApiResponse.success(response);
     }

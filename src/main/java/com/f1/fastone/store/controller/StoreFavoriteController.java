@@ -2,6 +2,7 @@ package com.f1.fastone.store.controller;
 
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
+import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.service.StoreFavoriteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -49,5 +51,14 @@ public class StoreFavoriteController {
             @PathVariable UUID storeId) {
         
         return storeFavoriteService.isFavorited(userDetails.getUsername(), storeId);
+    }
+    
+    // 사용자별 찜한 가게 목록 조회
+    @GetMapping("/my-favorites")
+    @Operation(summary = "내가 찜한 가게 목록", description = "현재 사용자가 찜한 가게들의 목록을 조회합니다.")
+    public ApiResponse<List<StoreResponseDto>> getMyFavorites(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        
+        return storeFavoriteService.getUserFavorites(userDetails.getUsername());
     }
 }

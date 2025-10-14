@@ -3,6 +3,7 @@ package com.f1.fastone.store.service;
 import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.ServiceException;
+import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.store.entity.StoreFavorite;
 import com.f1.fastone.store.repository.StoreFavoriteRepository;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -75,5 +77,24 @@ public class StoreFavoriteService {
         boolean isFavorited = storeFavoriteRepository.existsByUserAndStoreId(user, storeId);
         
         return ApiResponse.success(isFavorited);
+    }
+    
+    // 사용자별 찜한 가게 목록 조회
+    public ApiResponse<List<StoreResponseDto>> getUserFavorites(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ServiceException(ErrorCode.USER_NOT_FOUND));
+        
+        List<StoreFavorite> favorites = storeFavoriteRepository.findByUser(user);
+        
+        List<StoreResponseDto> responseDtos = favorites.stream()
+                .map(favorite -> {
+                    Store store = favorite.getStore();
+                    // 통계 정보는 별도 조회 (간단한 구현)
+                    Long favoriteCount = storeFavoriteRepository.countByStoreId(store.getId());
+                    return StoreResponseDto.fromEntityWithStats(store, favoriteCount, null, null);
+                })
+                .toList();
+        
+        return ApiResponse.success(responseDtos);
     }
 }
