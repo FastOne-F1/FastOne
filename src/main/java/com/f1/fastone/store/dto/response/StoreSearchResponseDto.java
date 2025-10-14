@@ -42,12 +42,36 @@ public class StoreSearchResponseDto {
                 .longitude(store.getLongitude())
                 .openTime(store.getOpenTime())
                 .closeTime(store.getCloseTime())
-                .isOpen(true) // 기본값으로 영업중으로 설정
+                .isOpen(store.getIsOpen()) // 실제 영업 상태 사용
                 .categoryId(store.getCategory() != null ? store.getCategory().getId() : null)
                 .categoryName(store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null)
-                .averageRating(null) // 추후 StoreRating 연동 시 구현
-                .reviewCount(0) // 추후 Review 도메인 연동 시 구현
-                .favoriteCount(0) // 추후 수정
+                .averageRating(null)
+                .reviewCount(0)
+                .favoriteCount(0)
+                .build();
+    }
+    
+    // Store 엔티티와 통계 정보로부터 응답 DTO 생성
+    public static StoreSearchResponseDto fromEntityWithStats(com.f1.fastone.store.entity.Store store, 
+                                                           Long favoriteCount, 
+                                                           BigDecimal averageRating, 
+                                                           Integer reviewCount) {
+        return StoreSearchResponseDto.builder()
+                .storeId(store.getId())
+                .name(store.getName())
+                .phone(store.getPhone())
+                .city(store.getCity())
+                .address(store.getAddress())
+                .latitude(store.getLatitude())
+                .longitude(store.getLongitude())
+                .openTime(store.getOpenTime())
+                .closeTime(store.getCloseTime())
+                .isOpen(store.getIsOpen()) // 실제 영업 상태 사용
+                .categoryId(store.getCategory() != null ? store.getCategory().getId() : null)
+                .categoryName(store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null)
+                .averageRating(averageRating) // 실제 평점 사용
+                .reviewCount(reviewCount) // 실제 리뷰 수 사용
+                .favoriteCount(favoriteCount.intValue()) // 실제 찜 수 사용
                 .build();
     }
 }
