@@ -4,13 +4,11 @@ import com.f1.fastone.cart.dto.response.CartItemResponseDto;
 import com.f1.fastone.cart.dto.response.CartResponseDto;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
+import com.f1.fastone.common.exception.custom.InternalServerException;
+import com.f1.fastone.cart.dto.CartRedisItem;
 import com.f1.fastone.store.entity.Store;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,9 +22,10 @@ public class CartRepository {
 
     private static final Duration CART_TTL = Duration.ofDays(7);
     private static final Duration IDX_TTL = Duration.ofDays(30);
+    private static final String STORE_NAME_KEY = "__storeName";
 
-    public static String cartKey(String userId, String storeId){ return "cart:" + userId + ":store:" + storeId; }
-    public static String idxKey(String userId)             { return "cart:" + userId + ":stores"; }
+    public static String cartKey(String userId, String storeId) { return "cart:" + userId + ":store:" + storeId; }
+    public static String idxKey(String userId) { return "cart:" + userId + ":stores"; }
 
     private final StringRedisTemplate redisTemplate;
     private final HashOperations<String, String, String> hash;
@@ -40,13 +39,19 @@ public class CartRepository {
         this.objectMapper = objectMapper;
     }
 
-    public void addMenu(String userId, Store store, String menuId, String jsonValue) {
+    public void addMenu(String userId, Store store, String menuId, CartRedisItem item) {
         String idx = idxKey(userId);
         String cart = cartKey(userId, store.getId().toString());
 
-        hash.putIfAbsent(cart, "__storeName", store.getName());
+        hash.putIfAbsent(cart, STORE_NAME_KEY, store.getName());
         set.add(idx, store.getId().toString());
 
+        String jsonValue;
+        try {
+            jsonValue = objectMapper.writeValueAsString(item);
+        } catch (JsonProcessingException e) {
+            throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
+        }
         hash.put(cart, menuId, jsonValue);
 
         redisTemplate.expire(idx, IDX_TTL);
@@ -60,13 +65,13 @@ public class CartRepository {
             throw new EntityNotFoundException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
         try {
-            Map<String, Object> itemMap = objectMapper.readValue(existingJson, Map.class);
-            itemMap.put("q", quantity);
-            String updatedJson = objectMapper.writeValueAsString(itemMap);
+            CartRedisItem existingItem = objectMapper.readValue(existingJson, CartRedisItem.class);
+            CartRedisItem updatedItem = CartRedisItem.updateQuantity(existingItem, quantity);
+            String updatedJson = objectMapper.writeValueAsString(updatedItem);
             hash.put(cart, menuId, updatedJson);
             redisTemplate.expire(cart, CART_TTL);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (JsonProcessingException e) {
+            throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
         }
     }
 
@@ -103,25 +108,25 @@ public class CartRepository {
 
         for (String storeId : storeIds) {
             String cart = cartKey(userId, storeId);
-            Map<String, String> entries = hash.entries(cart);
+            Map<String, String> menus = hash.entries(cart);
 
             // 장바구니 해시가 없거나 만료된 경우 인덱스에서 제거
-            if (entries == null || entries.isEmpty()) {
+            if (menus == null || menus.isEmpty()) {
                 set.remove(idx, storeId);
                 continue;
             }
 
-            String storeName = entries.remove("__storeName");
+            String storeName = menus.remove(STORE_NAME_KEY);
             List<CartItemResponseDto> items = new ArrayList<>();
 
-            for (Map.Entry<String, String> e : entries.entrySet()) {
+            menus.forEach((key, value) -> {
                 try {
-                    Map<String, Object> map = objectMapper.readValue(e.getValue(), Map.class);
-                    items.add(CartItemResponseDto.from(e.getKey(), map));
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
+                    CartRedisItem redisItem = objectMapper.readValue(value, CartRedisItem.class);
+                    items.add(CartItemResponseDto.from(UUID.fromString(key), redisItem));
+                } catch (JsonProcessingException e) {
+                    throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
                 }
-            }
+            });
 
             carts.add(CartResponseDto.from(storeId, storeName, items));
         }
@@ -132,4 +137,35 @@ public class CartRepository {
 
         return carts;
     }
+
+    public Map<UUID, CartRedisItem> findByUserAndStore(String userId, String storeId) {
+        Map<String, String> cart = hash.entries(cartKey(userId, storeId));
+        if (cart.isEmpty()) { throw new EntityNotFoundException(ErrorCode.CART_NOT_FOUND); }
+
+        Map<UUID, CartRedisItem> result = new LinkedHashMap<>();
+        cart.forEach((key, value) -> {
+            if (STORE_NAME_KEY.equals(key)) {
+                return;
+            }
+            try {
+                CartRedisItem item = objectMapper.readValue(value, CartRedisItem.class);
+                result.put(UUID.fromString(key), item);
+            } catch (JsonProcessingException e) {
+                throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
+            }
+        });
+        return result;
+    }
+
+    public void updateMenu(String userId, String storeId, String menuId, CartRedisItem item) {
+        String cart = cartKey(userId, storeId);
+        try {
+            String json = objectMapper.writeValueAsString(item);
+            hash.put(cart, menuId, json);
+            redisTemplate.expire(cart, CART_TTL);
+        } catch (JsonProcessingException e) {
+            throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
+        }
+    }
+
 }
