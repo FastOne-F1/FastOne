@@ -3,7 +3,6 @@ package com.f1.fastone.store.entity;
 import com.f1.fastone.common.entity.BaseEntity;
 import com.f1.fastone.menu.entity.Menu;
 import com.f1.fastone.user.entity.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -77,5 +76,22 @@ public class Store extends BaseEntity {
 
     public void addStoreRating(StoreRating storeRating) {
         this.storeRating = storeRating;
+    }
+
+    public void update(String name, String phone, String postalCode, String city,
+                       String address, String addressDetail, BigDecimal latitude,
+                       BigDecimal longitude, LocalTime openTime, LocalTime closeTime,
+                       StoreCategory category) {
+        this.name = name;
+        this.phone = phone;
+        this.postalCode = postalCode;
+        this.city = city;
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.openTime = openTime;
+        this.closeTime = closeTime;
+        this.category = category;
     }
 }

@@ -12,23 +12,15 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - fastone-net
 
   redis:
-    image: redis:7.4-alpine
+    image: redis:7.2
     container_name: redis-fastone
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "qwer1234"]
     ports:
       - "6379:6379"
     volumes:
       - redisdata:/data
-    command: ["redis-server", "--appendonly", "no"]
-    networks:
-      - fastone-net
-
-networks:
-  fastone-net:
-    driver: bridge
 
 volumes:
   pgdata:

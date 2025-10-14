@@ -66,11 +66,6 @@ public class WebSecurityConfig {
                         .anyRequest().permitAll()
         );
 
-        http.formLogin((formLogin) ->
-                formLogin
-                        .loginPage("/user/login").permitAll()
-        );
-
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

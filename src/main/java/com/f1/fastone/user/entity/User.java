@@ -64,4 +64,23 @@ public class User extends BaseEntity {
         this.isPublic = (isPublic != null) ? isPublic : true;
         this.phoneNumber = phoneNumber;
     }
+
+    // 수정 메서드 추가
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public void updateRole(UserRole role) {
+        this.role = role;
+    }
+
 }
