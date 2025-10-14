@@ -1,11 +1,12 @@
 package com.f1.fastone.menu.repository;
 
 import com.f1.fastone.menu.entity.Menu;
-import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.Optional;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MenuRepository extends JpaRepository<Menu, UUID> {
+    Optional<Menu> findByIdAndStoreId(UUID id, UUID store_id);
     List<Menu> findByStoreId(UUID storeId);
 }

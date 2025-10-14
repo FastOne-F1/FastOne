@@ -42,7 +42,13 @@ public enum ErrorCode {
     ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
 
     //cart
-    CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "C001", "장바구니를 찾을 수 없습니다."),
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CA001", "장바구니를 찾을 수 없습니다."),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CA002", "장바구니에 해당 메뉴가 존재하지 않습니다."),
+
+    // Redis
+    REDIS_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "R001", "Redis 연결에 실패했습니다."),
+    REDIS_DATA_CORRUPTED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "R002", "Redis 데이터 변환 중 오류가 발생했습니다."),
+    REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR.value(), "R003", "Redis 작업 처리 중 오류가 발생했습니다."),
 
     //common
     BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "C001", "잘못된 요청입니다."),
