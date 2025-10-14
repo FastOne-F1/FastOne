@@ -5,5 +5,6 @@ import java.util.UUID;
 public record PaymentRequestDto(
         UUID storeId,
         long amount,
-        String method
+        String method,
+        long addressId
 ) {}

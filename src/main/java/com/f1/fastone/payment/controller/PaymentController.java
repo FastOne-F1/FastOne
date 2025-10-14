@@ -2,7 +2,9 @@ package com.f1.fastone.payment.controller;
 
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
+import com.f1.fastone.payment.dto.request.PaymentConfirmRequestDto;
 import com.f1.fastone.payment.dto.request.PaymentRequestDto;
+import com.f1.fastone.payment.dto.response.PaymentCreateResponseDto;
 import com.f1.fastone.payment.dto.response.PaymentPrepareResponseDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +32,16 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ApiResponse<Void> createPayment(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                           @RequestBody PaymentRequestDto paymentRequestDto) {
-        paymentService.createPayment(userDetails.getUsername(), paymentRequestDto);
+    public ApiResponse<PaymentCreateResponseDto> createPayment(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                               @RequestBody PaymentRequestDto paymentRequestDto) {
+        return ApiResponse.created(paymentService.createPayment(userDetails.getUsername(), paymentRequestDto));
+    }
+
+    @PostMapping("/success")
+    public ApiResponse<Void> confirmPayment(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody PaymentConfirmRequestDto requestDto) {
+        paymentService.confirmPayment(userDetails.getUsername(), requestDto);
         return ApiResponse.created();
     }
 }
