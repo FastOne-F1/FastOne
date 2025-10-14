@@ -16,12 +16,12 @@ java {
 
 repositories {
     mavenCentral()
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url "https://repo.spring.io/snapshot" }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 ext {
-    set('springAiVersion', "1.0.2")
+    set('springAiVersion', "1.0.0-M4")
 }
 
 dependencyManagement {
@@ -53,9 +53,11 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
 
-    // Spring AI (BOM 관리)
-    implementation 'org.springframework.ai:spring-ai-core'
-    implementation 'org.springframework.ai:spring-ai-openai'
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Spring AI
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
