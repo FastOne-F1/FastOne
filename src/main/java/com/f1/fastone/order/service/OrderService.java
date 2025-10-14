@@ -27,7 +27,6 @@ import com.f1.fastone.store.repository.StoreRepository;
 import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserRole;
 import com.f1.fastone.user.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
