@@ -14,29 +14,38 @@ java {
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
 repositories {
     mavenCentral()
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://repo.spring.io/snapshot" }
 }
 
 ext {
     set('springAiVersion', "1.0.2")
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
+}
+
 dependencies {
-    // Spring Boot Starters
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
-    // JWT - 중복 제거 후 통합
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DB
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
@@ -44,25 +53,15 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
 
-    // Lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    // Spring AI (BOM 관리)
+    implementation 'org.springframework.ai:spring-ai-core'
+    implementation 'org.springframework.ai:spring-ai-openai'
 
-    // Database
-    runtimeOnly 'org.postgresql:postgresql'
-
-    // Test Dependencies
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 }
-
-//dependencyManagement {
-//    imports {
-//        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-//    }
-//}
 
 tasks.named('test') {
     useJUnitPlatform()
