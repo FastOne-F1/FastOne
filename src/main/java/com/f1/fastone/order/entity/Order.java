@@ -16,6 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "p_orders")
@@ -62,26 +63,6 @@ public class Order extends BaseEntity {
 
     @OneToOne(mappedBy = "order")
     private Review review;
-
-    @Builder
-    public Order(OrderStatus status, int totalPrice, String requestNote, String shipToName, String shipToPhone,
-                 String postalCode, String city, String address, String addressDetail, User user, Store store,
-                 List<OrderItem> orderItems) {
-        this.status = status != null ? status : OrderStatus.CREATED;
-        this.totalPrice = totalPrice;
-        this.requestNote = requestNote;
-        this.shipToName = shipToName;
-        this.shipToPhone = shipToPhone;
-        this.postalCode = postalCode;
-        this.city = city;
-        this.address = address;
-        this.addressDetail = addressDetail;
-        this.user = user;
-        this.store = store;
-        this.orderItems = Optional.ofNullable(orderItems)
-                .orElseGet(ArrayList::new);
-        this.orderItems.forEach(orderItem -> orderItem.setOrder(this));
-    }
 
     public static Order create(User user, Payment payment, UserAddress userAddress) {
         return Order.builder()
