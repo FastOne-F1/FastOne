@@ -3,14 +3,15 @@ package com.f1.fastone.store.controller;
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.store.dto.request.StoreCreateRequestDto;
+import com.f1.fastone.store.dto.request.StoreOperatingHoursUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreSearchRequestDto;
+import com.f1.fastone.store.dto.request.StoreStatusUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreUpdateRequestDto;
 import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.dto.response.StoreSearchPageResponseDto;
 import com.f1.fastone.store.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -156,6 +157,34 @@ public class StoreController {
             @PathVariable UUID storeId) {
 
         ApiResponse<Void> response = storeService.deleteStore(userDetails.getUsername(), storeId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 가게 영업 상태 변경
+    @PutMapping("/{storeId}/status")
+    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
+    @Operation(summary = "가게 영업 상태 변경", description = "가게의 영업 상태(오픈/클로즈)를 변경합니다. 본인 가게 또는 관리자만 변경 가능합니다.")
+    public ResponseEntity<ApiResponse<StoreResponseDto>> updateStoreStatus(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable UUID storeId,
+            @RequestBody @Valid StoreStatusUpdateRequestDto request) {
+
+        ApiResponse<StoreResponseDto> response = storeService.updateStoreStatus(
+                userDetails.getUsername(), storeId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 가게 영업 시간 변경
+    @PutMapping("/{storeId}/operating-hours")
+    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
+    @Operation(summary = "가게 영업 시간 변경", description = "가게의 영업 시간(오픈시간/마감시간)을 변경합니다. 본인 가게 또는 관리자만 변경 가능합니다.")
+    public ResponseEntity<ApiResponse<StoreResponseDto>> updateStoreOperatingHours(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable UUID storeId,
+            @RequestBody @Valid StoreOperatingHoursUpdateRequestDto request) {
+
+        ApiResponse<StoreResponseDto> response = storeService.updateStoreOperatingHours(
+                userDetails.getUsername(), storeId, request);
         return ResponseEntity.ok(response);
     }
 }
