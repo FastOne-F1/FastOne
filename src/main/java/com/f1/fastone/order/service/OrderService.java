@@ -48,27 +48,27 @@ public class OrderService {
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
 
-    @Transactional
-    public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
-        // User(CUSTOMER), 가게, 장바구니 조회
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
-        Store store = storeRepository.findById(requestDto.getStoreId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
-        Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
-
-        // Order 생성
-        Order order = requestDto.toEntity(user, store);
-        orderRepository.save(order);
-
-        // Order Item 생성
-        List<CartItem> cartItems = cart.getItems();
-        List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
-        List<OrderItemDto> orderItemDtos = orderItems.stream().peek(orderItemRepository::save).map(OrderItemDto::from).toList();
-
-        order.setOrderItems(orderItems);
-
-        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
-        return new OrderResponseDto(order.getId(), order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
-    }
+//    @Transactional
+//    public OrderResponseDto createOrder(String username, OrderRequestDto requestDto) {
+//        // User(CUSTOMER), 가게, 장바구니 조회
+//        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+//        Store store = storeRepository.findById(requestDto.getStoreId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+//        Cart cart = cartRepository.findById(requestDto.getCartId()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CART_NOT_FOUND));
+//
+//        // Order 생성
+//        Order order = requestDto.toEntity(user, store);
+//        orderRepository.save(order);
+//
+//        // Order Item 생성
+//        List<CartItem> cartItems = cart.getItems();
+//        List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
+//        List<OrderItemDto> orderItemDtos = orderItems.stream().peek(orderItemRepository::save).map(OrderItemDto::from).toList();
+//
+//        order.setOrderItems(orderItems);
+//
+//        PaymentDto paymentDto = new PaymentDto(order.getTotalPrice());
+//        return new OrderResponseDto(order.getId(), order.getCreatedAt(), order.getStore().getName(), orderItemDtos, paymentDto, order.getStatus());
+//    }
 
     @Transactional
     public List<OrderResponseDto> getOrders(String username) {

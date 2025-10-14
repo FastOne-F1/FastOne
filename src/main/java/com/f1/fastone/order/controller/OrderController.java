@@ -22,12 +22,12 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("")
-    public ApiResponse<OrderResponseDto> createOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                     @RequestBody OrderRequestDto requestDto) {
-        OrderResponseDto response = orderService.createOrder(userDetails.getUsername(), requestDto);
-        return ApiResponse.created(response);
-    }
+//    @PostMapping("")
+//    public ApiResponse<OrderResponseDto> createOrder(@AuthenticationPrincipal UserDetailsImpl userDetails,
+//                                                     @RequestBody OrderRequestDto requestDto) {
+//        OrderResponseDto response = orderService.createOrder(userDetails.getUsername(), requestDto);
+//        return ApiResponse.created(response);
+//    }
 
     @GetMapping("")
     public ApiResponse<List<OrderResponseDto>> getOrders(@AuthenticationPrincipal UserDetailsImpl userDetails) {
