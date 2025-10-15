@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Entity
 @Table(name = "p_menu")
 public class Menu extends BaseEntity {

@@ -22,47 +22,43 @@ public class MenuCategoryController {
     private final MenuCategoryService menuCategoryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> createMenuCategory(
+    public ApiResponse<MenuCategoryResponseDto> createMenuCategory(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Validated @RequestBody MenuCategoryRequestDto dto
             ) {
         MenuCategoryResponseDto response = menuCategoryService.createMenuCategory(userDetails.getUser(), dto);
 
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.created(response);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MenuCategoryResponseDto>>> getAllMenuCategories() {
+    public ApiResponse<List<MenuCategoryResponseDto>> getAllMenuCategories() {
         List<MenuCategoryResponseDto> categories = menuCategoryService.getAllMenuCategories();
-        return ResponseEntity.ok(ApiResponse.success(categories));
+        return ApiResponse.success(categories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> getMenuCategoryById(@PathVariable UUID id) {
+    public ApiResponse<MenuCategoryResponseDto> getMenuCategoryById(@PathVariable UUID id) {
         MenuCategoryResponseDto category = menuCategoryService.getMenuCategoryById(id);
-        return ResponseEntity.ok(ApiResponse.success(category));
+        return ApiResponse.success(category);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<MenuCategoryResponseDto>> updateMenuCategory(
+    public ApiResponse<MenuCategoryResponseDto> updateMenuCategory(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID id,
             @Validated @RequestBody MenuCategoryRequestDto dto
     ) {
         MenuCategoryResponseDto response = menuCategoryService.updateMenuCategory(userDetails.getUser(), id, dto);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ApiResponse.success(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteMenuCategory(
+    public ApiResponse<String> deleteMenuCategory(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID id
     ) {
         menuCategoryService.deleteMenuCategory(userDetails.getUser(), id);
-        return ResponseEntity.ok(ApiResponse.success("삭제가 완료되었습니다."));
+        return ApiResponse.success("삭제가 완료되었습니다.");
     }
-
-
-
-
 }

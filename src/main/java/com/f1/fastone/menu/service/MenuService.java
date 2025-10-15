@@ -123,7 +123,4 @@ public class MenuService {
                 menu.getImageUrl()
         );
     }
-
-
-
 }
