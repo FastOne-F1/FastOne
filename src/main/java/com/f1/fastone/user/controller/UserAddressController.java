@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/addresses")
 @RequiredArgsConstructor
-@Tag(name = "사용자 주소", description = "사용자 주소 관리 API")
+@Tag(name = "address-controller", description = "사용자 주소 관리 API")
 public class UserAddressController {
 
     private final UserAddressService userAddressService;
