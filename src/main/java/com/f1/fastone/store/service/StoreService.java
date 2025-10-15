@@ -4,7 +4,9 @@ import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.store.dto.request.StoreCreateRequestDto;
+import com.f1.fastone.store.dto.request.StoreOperatingHoursUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreSearchRequestDto;
+import com.f1.fastone.store.dto.request.StoreStatusUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreUpdateRequestDto;
 import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.dto.response.StoreSearchPageResponseDto;
@@ -26,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,17 +70,32 @@ public class StoreService {
 
     // 단일 가게 조회
     public ApiResponse<StoreResponseDto> getStore(UUID id) {
-        Store store = storeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
-
-        return ApiResponse.success(StoreResponseDto.fromEntity(store));
+        Object[] result = storeRepository.findStoreWithStatsById(id);
+        if (result == null) {
+            throw new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND);
+        }
+        
+        Store store = (Store) result[0];
+        Long favoriteCount = (Long) result[1];
+        BigDecimal averageRating = (BigDecimal) result[2];
+        Integer reviewCount = (Integer) result[3];
+        
+        return ApiResponse.success(StoreResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount));
     }
 
     // 모든 가게 목록 조회 (관리자용)
     public ApiResponse<List<StoreResponseDto>> getAllStores() {
-        List<Store> stores = storeRepository.findAllByDeletedAtIsNull();
-        List<StoreResponseDto> responseDtos = stores.stream()
-                .map(StoreResponseDto::fromEntity)
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+        Page<Object[]> storePage = storeRepository.findStoresWithStats(pageable);
+        
+        List<StoreResponseDto> responseDtos = storePage.getContent().stream()
+                .map(result -> {
+                    Store store = (Store) result[0];
+                    Long favoriteCount = (Long) result[1];
+                    BigDecimal averageRating = (BigDecimal) result[2];
+                    Integer reviewCount = (Integer) result[3];
+                    return StoreResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount);
+                })
                 .toList();
 
         return ApiResponse.success(responseDtos);
@@ -157,12 +175,24 @@ public class StoreService {
             return ApiResponse.success(List.of());
         }
         
-        // 가장 최근 주소의 city로 가게 조회
+        // 가장 최근 주소의 city로 가게 조회 (통계 정보 포함)
         String userCity = userAddresses.get(0).getCity();
-        List<Store> stores = storeRepository.findByCityAndDeletedAtIsNull(userCity);
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+        Page<Object[]> storePage = storeRepository.findStoresWithStats(pageable);
         
-        List<StoreResponseDto> responseDtos = stores.stream()
-                .map(StoreResponseDto::fromEntity)
+        // 해당 도시의 가게만 필터링
+        List<StoreResponseDto> responseDtos = storePage.getContent().stream()
+                .filter(result -> {
+                    Store store = (Store) result[0];
+                    return store.getCity().equals(userCity);
+                })
+                .map(result -> {
+                    Store store = (Store) result[0];
+                    Long favoriteCount = (Long) result[1];
+                    BigDecimal averageRating = (BigDecimal) result[2];
+                    Integer reviewCount = (Integer) result[3];
+                    return StoreResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount);
+                })
                 .toList();
         
         return ApiResponse.success(responseDtos);
@@ -209,34 +239,53 @@ public class StoreService {
         Sort sort = createSort(searchRequest.getSortBy());
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
         
-        Page<Store> storePage;
+        // 통계 정보 포함 조회
+        Page<Object[]> storePage = storeRepository.findStoresWithStats(pageable);
         
-        // 검색 조건에 따라 적절한 메서드 호출
-        if (searchRequest.hasKeyword() && searchRequest.hasCategoryFilter()) {
-            // 키워드 + 카테고리 조합 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), searchRequest.getCategoryId(), pageable);
-        } else if (searchRequest.hasKeyword()) {
-            // 키워드만 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), pageable);
-        } else if (searchRequest.hasCategoryFilter()) {
-            // 카테고리만 필터링
-            storePage = storeRepository.findByCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getCategoryId(), pageable);
-        } else {
-            // 전체 조회 (도시별)
-            List<Store> stores = storeRepository.findByCityAndDeletedAtIsNull(city);
-            // List를 Page로 변환 (간단한 구현)
-            int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), stores.size());
-            List<Store> pageContent = stores.subList(start, end);
-            storePage = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, stores.size());
-        }
+        // 도시별 필터링 및 검색 조건 적용
+        List<Object[]> filteredResults = storePage.getContent().stream()
+                .filter(result -> {
+                    Store store = (Store) result[0];
+                    
+                    // 도시 필터링
+                    if (!store.getCity().equals(city)) {
+                        return false;
+                    }
+                    
+                    // 키워드 검색
+                    if (searchRequest.hasKeyword()) {
+                        String keyword = searchRequest.getKeyword().toLowerCase();
+                        if (!store.getName().toLowerCase().contains(keyword)) {
+                            return false;
+                        }
+                    }
+                    
+                    // 카테고리 필터링
+                    if (searchRequest.hasCategoryFilter()) {
+                        if (store.getCategory() == null || !store.getCategory().getId().equals(searchRequest.getCategoryId())) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                })
+                .toList();
+        
+        // 필터링된 결과를 Page로 변환
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredResults.size());
+        List<Object[]> pageContent = filteredResults.subList(start, end);
+        Page<Object[]> filteredPage = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, filteredResults.size());
         
         // 응답 DTO 변환
         StoreSearchPageResponseDto response = StoreSearchPageResponseDto.fromPage(
-                storePage, StoreSearchResponseDto::fromEntity);
+                filteredPage, result -> {
+                    Store store = (Store) result[0];
+                    Long favoriteCount = (Long) result[1];
+                    BigDecimal averageRating = (BigDecimal) result[2];
+                    Integer reviewCount = (Integer) result[3];
+                    return StoreSearchResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount);
+                });
         
         return ApiResponse.success(response);
     }
@@ -251,31 +300,67 @@ public class StoreService {
         Sort sort = createSort(searchRequest.getSortBy());
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
         
-        Page<Store> storePage;
+        Page<Object[]> storePage = storeRepository.findStoresWithStats(pageable);
         
-        // 검색 조건에 따라 적절한 메서드 호출
-        if (searchRequest.hasKeyword() && searchRequest.hasCategoryFilter()) {
-            // 키워드 + 카테고리 조합 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), searchRequest.getCategoryId(), pageable);
-        } else if (searchRequest.hasKeyword()) {
-            // 키워드만 검색
-            storePage = storeRepository.findByNameContainingIgnoreCaseAndDeletedAtIsNull(
-                    searchRequest.getKeyword(), pageable);
-        } else if (searchRequest.hasCategoryFilter()) {
-            // 카테고리만 필터링
-            storePage = storeRepository.findByCategoryIdAndDeletedAtIsNull(
-                    searchRequest.getCategoryId(), pageable);
-        } else {
-            // 전체 조회
-            storePage = storeRepository.findAllByDeletedAtIsNull(pageable);
-        }
-        
-        // 응답 DTO 변환
+        // 응답 DTO 변환 (통계 정보 포함)
         StoreSearchPageResponseDto response = StoreSearchPageResponseDto.fromPage(
-                storePage, StoreSearchResponseDto::fromEntity);
+                storePage, result -> {
+                    Store store = (Store) result[0];
+                    Long favoriteCount = (Long) result[1];
+                    BigDecimal averageRating = (BigDecimal) result[2];
+                    Integer reviewCount = (Integer) result[3];
+                    return StoreSearchResponseDto.fromEntityWithStats(store, favoriteCount, averageRating, reviewCount);
+                });
         
         return ApiResponse.success(response);
+    }
+
+    // 영업 상태 변경
+    @Transactional
+    public ApiResponse<StoreResponseDto> updateStoreStatus(String username, UUID storeId, StoreStatusUpdateRequestDto dto) {
+        // User 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        // Store 조회
+        Store store = storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+
+        // 권한 검증: owner 본인 or MANAGER or MASTER
+        if (user.getRole() != UserRole.MANAGER && user.getRole() != UserRole.MASTER 
+            && !store.getOwner().getUsername().equals(username)) {
+            throw new EntityNotFoundException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 영업 상태 변경
+        store.updateStatus(dto.getIsOpen());
+        Store updatedStore = storeRepository.save(store);
+
+        return ApiResponse.success(StoreResponseDto.fromEntity(updatedStore));
+    }
+
+    // 영업 시간 변경
+    @Transactional
+    public ApiResponse<StoreResponseDto> updateStoreOperatingHours(String username, UUID storeId, StoreOperatingHoursUpdateRequestDto dto) {
+        // User 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        // Store 조회
+        Store store = storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+
+        // 권한 검증: owner 본인 or MANAGER or MASTER
+        if (user.getRole() != UserRole.MANAGER && user.getRole() != UserRole.MASTER 
+            && !store.getOwner().getUsername().equals(username)) {
+            throw new EntityNotFoundException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 영업 시간 변경
+        store.updateOperatingHours(dto.getOpenTime(), dto.getCloseTime());
+        Store updatedStore = storeRepository.save(store);
+
+        return ApiResponse.success(StoreResponseDto.fromEntity(updatedStore));
     }
 
     // 정렬 설정 생성

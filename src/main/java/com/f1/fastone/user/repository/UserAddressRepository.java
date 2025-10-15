@@ -16,4 +16,7 @@ public interface UserAddressRepository extends JpaRepository<UserAddress, Long> 
 
     // 사용자의 주소 개수 조회
     long countByUserUsername(String username);
+
+    // 사용자 대표 주소 조회
+    Optional<UserAddress> findFirstByUserUsernameAndIsDefaultTrue(String username);
 }

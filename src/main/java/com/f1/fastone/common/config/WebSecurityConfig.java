@@ -59,23 +59,25 @@ public class WebSecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
+        // 경로별 권한 설정
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
+                        // 정적 리소스 허용
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/**").permitAll()  // 모든 경로 허용
-                        .anyRequest().permitAll()
+                        // 회원가입, 로그인 허용
+                        .requestMatchers("/user/signup", "/user/login").permitAll()
+                        // Swagger UI 허용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        // 관리자 API는 MASTER 권한 필요
+                        .requestMatchers("/master/**").hasRole("MASTER")
+                        // 나머지 요청은 인증 필요
+                        .anyRequest().authenticated()
         );
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        // 접근 불가 페이지
-        http.exceptionHandling((exceptionHandling) ->
-                exceptionHandling
-                        // "접근 불가" 페이지 URL 설정
-                        .accessDeniedPage("/forbidden.html")
-        );
 
         return http.build();
     }

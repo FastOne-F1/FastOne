@@ -5,6 +5,7 @@ import com.f1.fastone.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -66,5 +67,9 @@ public class Menu extends BaseEntity {
         this.soldOut = soldOut;
         this.imageUrl = imageUrl;
         this.category = category;
+    }
+
+    public void updateSoldOut(boolean soldOut) {
+        this.soldOut = soldOut;
     }
 }

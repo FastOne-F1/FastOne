@@ -1,8 +1,5 @@
 package com.f1.fastone.review.service;
 
-import com.f1.fastone.util.TestOrderFactory;
-import com.f1.fastone.util.TestReviewFactory;
-import com.f1.fastone.util.TestStoreFactory;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.order.entity.Order;
@@ -21,7 +18,6 @@ import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserRole;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
@@ -36,11 +32,11 @@ class ReviewServiceTest {
 	@Mock private OrderRepository orderRepository;
 	@Mock private StoreRatingService storeRatingService;
 	@Mock private ReviewMapper reviewMapper;
+	@Mock private ReviewSummaryService reviewSummaryService;
 
 	@InjectMocks private ReviewService reviewService;
 
 	private AutoCloseable closeable;
-
 	private Store testStore;
 	private Order testOrder;
 	private Review testReview;
@@ -57,9 +53,25 @@ class ReviewServiceTest {
 			.build();
 
 		StoreCategory category = StoreCategory.of("한식");
-		testStore = TestStoreFactory.createStore(testUser, category);
-		testOrder = TestOrderFactory.createOrder(testUser, testStore);
-		testReview = TestReviewFactory.createReview(testUser, testStore, testOrder, 5, "맛있어요!");
+		testStore = Store.builder()
+			.name("테스트 가게")
+			.owner(testUser)
+			.category(category)
+			.build();
+
+		testOrder = Order.builder()
+			.user(testUser)
+			.store(testStore)
+			.totalPrice(10000)
+			.build();
+
+		testReview = Review.builder()
+			.user(testUser)
+			.store(testStore)
+			.order(testOrder)
+			.score(5)
+			.content("맛있어요!")
+			.build();
 	}
 
 	@AfterEach
@@ -78,7 +90,7 @@ class ReviewServiceTest {
 		given(reviewRepository.save(any(Review.class))).willReturn(testReview);
 		given(reviewMapper.toDto(any(Review.class))).willReturn(
 			new ReviewResponseDto(testReview.getId(), 5, "맛있어요!", "testUser", "테스트 가게",
-				LocalDateTime.now(), LocalDateTime.now(), null, null)
+				LocalDateTime.now(), LocalDateTime.now(), null, null, null)
 		);
 
 		// when
@@ -109,7 +121,7 @@ class ReviewServiceTest {
 		given(reviewRepository.findById(reviewId)).willReturn(Optional.of(testReview));
 		given(reviewMapper.toDto(any(Review.class))).willReturn(
 			new ReviewResponseDto(reviewId, 4, "괜찮음", "testUser", "테스트 가게",
-				LocalDateTime.now(), LocalDateTime.now(), null, null)
+				LocalDateTime.now(), LocalDateTime.now(), null, null, null)
 		);
 
 		ReviewResponseDto response = reviewService.updateReview("testUser", reviewId, dto);
@@ -138,7 +150,7 @@ class ReviewServiceTest {
 		given(reviewRepository.findById(reviewId)).willReturn(Optional.of(testReview));
 		given(reviewMapper.toDto(testReview)).willReturn(
 			new ReviewResponseDto(reviewId, 5, "맛있어요!", "testUser", "테스트 가게",
-				LocalDateTime.now(), LocalDateTime.now(), null, null)
+				LocalDateTime.now(), LocalDateTime.now(), null, null, null)
 		);
 
 		ReviewResponseDto response = reviewService.getReview(reviewId);
@@ -147,21 +159,22 @@ class ReviewServiceTest {
 	}
 
 	@Test
-	@DisplayName("가게별 리뷰 목록 조회 성공")
+	@DisplayName("가게별 리뷰 목록 조회 성공 (요약 캐싱 포함)")
 	void getReviewsByStore_success() {
 		UUID storeId = UUID.randomUUID();
 		Page<Review> reviewPage = new PageImpl<>(List.of(testReview));
-		given(reviewRepository.findByStoreId(eq(storeId), any(Pageable.class)))
-			.willReturn(reviewPage);
-		given(reviewMapper.toDto(testReview)).willReturn(
+
+		given(reviewRepository.findByStoreId(eq(storeId), any(Pageable.class))).willReturn(reviewPage);
+		given(reviewSummaryService.getCachedSummary(anyString())).willReturn(null);
+		given(reviewMapper.toDtoWithSummary(any(Review.class), any())).willReturn(
 			new ReviewResponseDto(testReview.getId(), 5, "맛있어요!", "testUser", "테스트 가게",
-				LocalDateTime.now(), LocalDateTime.now(), null, null)
+				LocalDateTime.now(), LocalDateTime.now(), null, null, "요약")
 		);
 
 		var response = reviewService.getReviewsByStore(storeId, PageRequest.of(0, 10));
 
 		assertThat(response.content()).hasSize(1);
-		assertThat(response.content().get(0).content()).isEqualTo("맛있어요!");
+		then(reviewSummaryService).should().summarizeReviewAsync(anyString(), anyString());
 	}
 
 	@Test

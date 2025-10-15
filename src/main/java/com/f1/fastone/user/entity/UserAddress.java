@@ -34,18 +34,22 @@ public class UserAddress extends BaseEntity {
     @Column
     private String addressDetail;
 
+    @Column(nullable = false)
+    private boolean isDefault = false; // 기본값 여부
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
     public UserAddress(String postalCode, String city, String address,
-                       String addressDetail, User user) {
+                       String addressDetail, User user, boolean isDefault) {
         this.postalCode = postalCode;
         this.city = city;
         this.address = address;
         this.addressDetail = addressDetail;
         this.user = user;
+        this.isDefault = isDefault;
     }
 
     // 주소 업데이트 메서드

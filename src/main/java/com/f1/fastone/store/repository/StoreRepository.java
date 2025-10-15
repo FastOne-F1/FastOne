@@ -35,4 +35,24 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
 
     // 관리자용 전체 가게 조회(페이징)
     Page<Store> findAllByDeletedAtIsNull(Pageable pageable);
+    
+    // 가게 조회 시 좋아요 수와 별점 정보 포함 (단일 조회)
+    @Query("SELECT s, " +
+           "COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) as favoriteCount, " +
+           "COALESCE(sr.scoreAvg, 0) as averageRating, " +
+           "COALESCE(sr.reviewCount, 0) as reviewCount " +
+           "FROM Store s " +
+           "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
+           "WHERE s.id = :storeId AND s.deletedAt IS NULL")
+    Object[] findStoreWithStatsById(@Param("storeId") UUID storeId);
+    
+    // 가게 목록 조회 시 좋아요 수와 별점 정보 포함 (페이징)
+    @Query("SELECT s, " +
+           "COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) as favoriteCount, " +
+           "COALESCE(sr.scoreAvg, 0) as averageRating, " +
+           "COALESCE(sr.reviewCount, 0) as reviewCount " +
+           "FROM Store s " +
+           "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
+           "WHERE s.deletedAt IS NULL")
+    Page<Object[]> findStoresWithStats(Pageable pageable);
 }
