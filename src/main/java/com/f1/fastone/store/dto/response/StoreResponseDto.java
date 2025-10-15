@@ -22,7 +22,11 @@ public record StoreResponseDto(
         String categoryName,
         String ownerUsername,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        // 통계 정보
+        Long favoriteCount,
+        BigDecimal averageRating,
+        Integer reviewCount
 ) {
     public static StoreResponseDto fromEntity(Store store) {
         return new StoreResponseDto(
@@ -40,7 +44,32 @@ public record StoreResponseDto(
                 store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null,
                 store.getOwner().getUsername(),
                 store.getCreatedAt(),
-                store.getUpdatedAt()
+                store.getUpdatedAt(),
+                // 통계 정보는 null로 설정 (기존 호환성 유지)
+                null, null, null
+        );
+    }
+    
+    public static StoreResponseDto fromEntityWithStats(Store store, Long favoriteCount, BigDecimal averageRating, Integer reviewCount) {
+        return new StoreResponseDto(
+                store.getId(),
+                store.getName(),
+                store.getPhone(),
+                store.getPostalCode(),
+                store.getCity(),
+                store.getAddress(),
+                store.getAddressDetail(),
+                store.getLatitude(),
+                store.getLongitude(),
+                store.getOpenTime(),
+                store.getCloseTime(),
+                store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null,
+                store.getOwner().getUsername(),
+                store.getCreatedAt(),
+                store.getUpdatedAt(),
+                favoriteCount,
+                averageRating,
+                reviewCount
         );
     }
 }
