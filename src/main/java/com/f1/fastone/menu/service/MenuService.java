@@ -33,7 +33,8 @@ public class MenuService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
 
         MenuCategory category = menuCategoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
+              .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
+
 
 
     Menu menu = new Menu(
