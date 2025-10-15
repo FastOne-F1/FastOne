@@ -48,3 +48,18 @@ logging:
     root: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
+
+    spring:
+      ai:
+        google:
+          api-key: AIzaSyD-VS6ofTWDj72t2LXUdxxjemITcWviShQ
+          project-id: 143064894925
+          location: us-central1
+          vertex:
+            chat:
+              options:
+                model: gemini-1.5-pro
+
+    jwt:
+      secret:
+        key: yTo4jLx9zYBaTF/Ralw7tiKF6Cw4pCk76+r+YqwUMsA=

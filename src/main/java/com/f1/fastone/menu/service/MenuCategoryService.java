@@ -25,9 +25,12 @@ public class MenuCategoryService {
 
     public MenuCategoryResponseDto createMenuCategory(User user, MenuCategoryRequestDto dto) {
         // 권한 검증
-        if (user.getRole() != UserRole.MASTER && user.getRole() != UserRole.MANAGER) {
+        if (user.getRole() != UserRole.MASTER
+                && user.getRole() != UserRole.MANAGER
+                && user.getRole() != UserRole.OWNER) {
             throw new ServiceException(ErrorCode.USER_ACCESS_DENIED);
         }
+
 
         // 중복 체크
         if (menuCategoryRepository.existsByMenuCategoryName(dto.menuCategoryName())) {
