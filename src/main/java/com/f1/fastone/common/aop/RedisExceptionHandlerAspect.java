@@ -23,9 +23,6 @@ public class RedisExceptionHandlerAspect {
         } catch (RedisConnectionFailureException e) {
             log.error("[Redis 연결 오류] {} - {}", joinPoint.getSignature(), e.getMessage());
             throw new InternalServerException(ErrorCode.REDIS_CONNECTION_ERROR);
-        } catch (JsonProcessingException e) {
-            log.error("[Redis 데이터 직렬화 오류] {} - {}", joinPoint.getSignature(), e.getMessage());
-            throw new InternalServerException(ErrorCode.REDIS_DATA_CORRUPTED);
         } catch (DataAccessException e) {
             log.error("[Redis 데이터 접근 오류] {} - {}", joinPoint.getSignature(), e.getMessage());
             throw new InternalServerException(ErrorCode.REDIS_OPERATION_FAILED);

@@ -17,13 +17,16 @@ public enum ErrorCode {
     AUTH_INVALID_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A002", "유효하지 않은 토큰입니다."),
     AUTH_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED.value(), "A003", "만료된 토큰입니다."),
 
+    ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "AD001", "대표 주소를 찾을 수 없습니다."),
 
     //store
     STORE_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S201", "요청한 가게 카테고리를 찾을 수 없습니다."),
     STORE_CATEGORY_DUPLICATED(HttpStatus.CONFLICT.value(), "S202", "이미 존재하는 가게 카테고리 이름입니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S001", "스토어를 찾을 수 없습니다."),
+    STORE_CLOSED(HttpStatus.BAD_REQUEST.value(), "S002", "현재 영업 중이 아닌 스토어입니다."),
     ALREADY_FAVORITED(HttpStatus.CONFLICT.value(), "S003", "이미 찜한 가게입니다."),
     FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "S004", "찜한 가게가 아닙니다."),
+
 
     //menu
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "M001", "메뉴를 찾을 수 없습니다."),
@@ -43,6 +46,10 @@ public enum ErrorCode {
     REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "R003", "본인 리뷰만 접근할 수 있습니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "O001", "주문을 찾을 수 없습니다."),
     ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN.value(), "O002", "본인 주문에만 리뷰를 작성할 수 있습니다."),
+
+    // payment
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "P001", "결제 정보를 찾을 수 없습니다."),
+    INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST.value(), "P002", "결제 금액이 일치하지 않습니다."),
 
     //cart
     CART_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "CA001", "장바구니를 찾을 수 없습니다."),
