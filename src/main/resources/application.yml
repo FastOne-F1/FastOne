@@ -28,20 +28,35 @@ spring:
         format_sql: true
         show_sql: true
 
+#  ai:
+#    openai:
+#      api-key: ${spring.ai.google.api-key}
+#
+#    vertex:
+#      ai:
+#        gemini:
+#          project-id: ${spring.ai.vertex.ai.gemini.project-id}
+#          location: ${spring.ai.google.location}
+#
+## JWT 설정
+#jwt:
+#  secret:
+#    key: ${jwt.secret.key}
+
+
   ai:
     openai:
-      api-key: ${spring.ai.google.api-key}
+      api-key: AIzaSyD-VS6ofTWDj72t2LXUdxxjemITcWviShQ
 
     vertex:
       ai:
         gemini:
-          project-id: ${spring.ai.vertex.ai.gemini.project-id}
-          location: ${spring.ai.google.location}
+          project-id: 143064894925
+          location: us-central1
 
-# JWT 설정
 jwt:
   secret:
-    key: ${jwt.secret.key}
+    key: yTo4jLx9zYBaTF/Ralw7tiKF6Cw4pCk76+r+YqwUMsA=
 
 logging:
   level:
