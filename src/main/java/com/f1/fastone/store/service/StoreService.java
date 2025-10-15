@@ -4,7 +4,9 @@ import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.store.dto.request.StoreCreateRequestDto;
+import com.f1.fastone.store.dto.request.StoreOperatingHoursUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreSearchRequestDto;
+import com.f1.fastone.store.dto.request.StoreStatusUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreUpdateRequestDto;
 import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.dto.response.StoreSearchPageResponseDto;
@@ -276,6 +278,54 @@ public class StoreService {
                 storePage, StoreSearchResponseDto::fromEntity);
         
         return ApiResponse.success(response);
+    }
+
+    // 영업 상태 변경
+    @Transactional
+    public ApiResponse<StoreResponseDto> updateStoreStatus(String username, UUID storeId, StoreStatusUpdateRequestDto dto) {
+        // User 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        // Store 조회
+        Store store = storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+
+        // 권한 검증: owner 본인 or MANAGER or MASTER
+        if (user.getRole() != UserRole.MANAGER && user.getRole() != UserRole.MASTER 
+            && !store.getOwner().getUsername().equals(username)) {
+            throw new EntityNotFoundException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 영업 상태 변경
+        store.updateStatus(dto.getIsOpen());
+        Store updatedStore = storeRepository.save(store);
+
+        return ApiResponse.success(StoreResponseDto.fromEntity(updatedStore));
+    }
+
+    // 영업 시간 변경
+    @Transactional
+    public ApiResponse<StoreResponseDto> updateStoreOperatingHours(String username, UUID storeId, StoreOperatingHoursUpdateRequestDto dto) {
+        // User 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        // Store 조회
+        Store store = storeRepository.findByIdAndDeletedAtIsNull(storeId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
+
+        // 권한 검증: owner 본인 or MANAGER or MASTER
+        if (user.getRole() != UserRole.MANAGER && user.getRole() != UserRole.MASTER 
+            && !store.getOwner().getUsername().equals(username)) {
+            throw new EntityNotFoundException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 영업 시간 변경
+        store.updateOperatingHours(dto.getOpenTime(), dto.getCloseTime());
+        Store updatedStore = storeRepository.save(store);
+
+        return ApiResponse.success(StoreResponseDto.fromEntity(updatedStore));
     }
 
     // 정렬 설정 생성

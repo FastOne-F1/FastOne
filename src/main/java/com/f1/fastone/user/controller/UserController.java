@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "사용자 인증", description = "회원가입, 로그인 관련 API")
+@Tag(name = "user-controller", description = "회원가입, 로그인 관련 API")
 public class UserController {
 
     private final RegisterService registerService;

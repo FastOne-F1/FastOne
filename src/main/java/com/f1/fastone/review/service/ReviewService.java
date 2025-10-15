@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReviewService {
 
+	private final ReviewSummaryService reviewSummaryService;
 	private final ReviewRepository reviewRepository;
 	private final OrderRepository orderRepository;
 	private final StoreRatingService storeRatingService;
@@ -76,7 +77,13 @@ public class ReviewService {
 	public PageResponse<ReviewResponseDto> getReviewsByStore(UUID storeId, Pageable pageable) {
 		return PageResponse.of(
 			reviewRepository.findByStoreId(storeId, pageable)
-				.map(reviewMapper::toDto)
+				.map(review -> {
+					String summary = reviewSummaryService.getCachedSummary(review.getId().toString());
+					if (summary == null) {
+						reviewSummaryService.summarizeReviewAsync(review.getId().toString(), review.getContent());
+					}
+					return reviewMapper.toDtoWithSummary(review, summary);
+				})
 		);
 	}
 

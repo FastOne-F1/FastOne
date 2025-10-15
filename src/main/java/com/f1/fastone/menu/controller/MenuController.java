@@ -38,11 +38,21 @@ public class MenuController {
         return menuService.getMenusByStore(storeId);
     }
 
+    @PatchMapping("/{id}/soldout")
+    public ApiResponse<MenuResponseDto> updateSoldOutStatus(
+            @PathVariable UUID id,
+            @RequestParam boolean soldOut
+    ) {
+        return menuService.updateSoldOutStatus(id, soldOut);
+    }
+
+    // PUT
     @PutMapping("/{id}")
     public ApiResponse<MenuResponseDto> updateMenu(@PathVariable UUID id, @RequestBody MenuUpdateRequestDto dto) {
         return menuService.updateMenu(id, dto);
     }
 
+    //DELETE
     @DeleteMapping("/{id}")
     public ApiResponse<MenuResponseDto> deleteMenu(@PathVariable UUID id) {
         return menuService.deleteMenu(id);

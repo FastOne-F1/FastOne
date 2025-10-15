@@ -21,6 +21,7 @@ public record ReviewResponseDto(
 
 	ReplyResponseDto reply, // 있을 경우에만 필드 존재
 
-	OrderSummaryDto order
+	OrderSummaryDto order,
 
+	String summary
 ) {}
