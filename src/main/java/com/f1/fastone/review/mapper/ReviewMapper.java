@@ -16,6 +16,10 @@ import com.f1.fastone.review.entity.Review;
 public class ReviewMapper {
 
 	public ReviewResponseDto toDto(Review review) {
+		return toDtoWithSummary(review, null);
+	}
+
+	public ReviewResponseDto toDtoWithSummary(Review review, String summary) {
 		return new ReviewResponseDto(
 			review.getId(),
 			review.getScore(),
@@ -25,8 +29,8 @@ public class ReviewMapper {
 			review.getCreatedAt(),
 			review.getUpdatedAt(),
 			ReplyResponseDto.from(review),
-			review.getOrder() != null ? toOrderSummaryDto(review.getOrder()) : null
-			// N + 1 병목 구간 : 추후 수정 반드시 필요
+			review.getOrder() != null ? toOrderSummaryDto(review.getOrder()) : null,
+			summary
 		);
 	}
 
