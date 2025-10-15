@@ -60,11 +60,17 @@ public class Store extends BaseEntity {
     private LocalTime openTime;
     private LocalTime closeTime;
 
+    // 영업 상태 (true: 영업중, false: 영업종료)
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isOpen = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "store")
+    @Builder.Default
     private List<Menu> menus = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -93,5 +99,16 @@ public class Store extends BaseEntity {
         this.openTime = openTime;
         this.closeTime = closeTime;
         this.category = category;
+    }
+
+    // 영업 상태 변경
+    public void updateStatus(Boolean isOpen) {
+        this.isOpen = isOpen;
+    }
+
+    // 영업 시간 변경
+    public void updateOperatingHours(LocalTime openTime, LocalTime closeTime) {
+        this.openTime = openTime;
+        this.closeTime = closeTime;
     }
 }

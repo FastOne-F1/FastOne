@@ -3,6 +3,8 @@ package com.f1.fastone.store.service;
 import com.f1.fastone.common.dto.ApiResponse;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.store.dto.request.StoreCreateRequestDto;
+import com.f1.fastone.store.dto.request.StoreOperatingHoursUpdateRequestDto;
+import com.f1.fastone.store.dto.request.StoreStatusUpdateRequestDto;
 import com.f1.fastone.store.dto.request.StoreUpdateRequestDto;
 import com.f1.fastone.store.dto.response.StoreResponseDto;
 import com.f1.fastone.store.entity.Store;
@@ -366,5 +368,180 @@ class StoreServiceTest {
                 .hasMessageContaining("해당 리소스에 접근할 권한이 없습니다");
 
         then(storeRepository).should(never()).delete(any(Store.class));
+    }
+
+    @Test
+    @DisplayName("영업 상태 변경 - 성공")
+    void updateStoreStatus_success() {
+        // given
+        String username = "testUser";
+        UUID storeId = UUID.randomUUID();
+        Boolean newStatus = false;
+
+        User testUser = User.builder()
+                .username(username)
+                .email("test@example.com")
+                .password("password")
+                .role(UserRole.OWNER)
+                .build();
+
+        Store testStore = Store.builder()
+                .id(storeId)
+                .name("Test Store")
+                .phone("010-1234-5678")
+                .owner(testUser)
+                .isOpen(true)
+                .build();
+
+        StoreStatusUpdateRequestDto requestDto = StoreStatusUpdateRequestDto.builder()
+                .isOpen(newStatus)
+                .build();
+
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(testUser));
+        given(storeRepository.findByIdAndDeletedAtIsNull(storeId)).willReturn(Optional.of(testStore));
+        given(storeRepository.save(any(Store.class))).willReturn(testStore);
+
+        // when
+        ApiResponse<StoreResponseDto> response = storeService.updateStoreStatus(username, storeId, requestDto);
+
+        // then
+        assertThat(response.data()).isNotNull();
+        
+        then(userRepository).should().findByUsername(username);
+        then(storeRepository).should().findByIdAndDeletedAtIsNull(storeId);
+        then(storeRepository).should().save(testStore);
+    }
+
+    @Test
+    @DisplayName("영업 상태 변경 - 권한 없음")
+    void updateStoreStatus_accessDenied() {
+        // given
+        String username = "testUser";
+        UUID storeId = UUID.randomUUID();
+
+        User otherUser = User.builder()
+                .username("otherUser")
+                .email("other@example.com")
+                .password("password")
+                .role(UserRole.OWNER)
+                .build();
+
+        User testUser = User.builder()
+                .username(username)
+                .email("test@example.com")
+                .password("password")
+                .role(UserRole.CUSTOMER)
+                .build();
+
+        Store testStore = Store.builder()
+                .id(storeId)
+                .name("Test Store")
+                .owner(otherUser)
+                .isOpen(true)
+                .build();
+
+        StoreStatusUpdateRequestDto requestDto = StoreStatusUpdateRequestDto.builder()
+                .isOpen(false)
+                .build();
+
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(testUser));
+        given(storeRepository.findByIdAndDeletedAtIsNull(storeId)).willReturn(Optional.of(testStore));
+
+        // when & then
+        assertThatThrownBy(() -> storeService.updateStoreStatus(username, storeId, requestDto))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("해당 리소스에 접근할 권한이 없습니다");
+
+        then(storeRepository).should(never()).save(any(Store.class));
+    }
+
+    @Test
+    @DisplayName("영업 시간 변경 - 성공")
+    void updateStoreOperatingHours_success() {
+        // given
+        String username = "testUser";
+        UUID storeId = UUID.randomUUID();
+        LocalTime newOpenTime = LocalTime.of(9, 0);
+        LocalTime newCloseTime = LocalTime.of(22, 0);
+
+        User testUser = User.builder()
+                .username(username)
+                .email("test@example.com")
+                .password("password")
+                .role(UserRole.OWNER)
+                .build();
+
+        Store testStore = Store.builder()
+                .id(storeId)
+                .name("Test Store")
+                .phone("010-1234-5678")
+                .owner(testUser)
+                .openTime(LocalTime.of(10, 0))
+                .closeTime(LocalTime.of(21, 0))
+                .build();
+
+        StoreOperatingHoursUpdateRequestDto requestDto = StoreOperatingHoursUpdateRequestDto.builder()
+                .openTime(newOpenTime)
+                .closeTime(newCloseTime)
+                .build();
+
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(testUser));
+        given(storeRepository.findByIdAndDeletedAtIsNull(storeId)).willReturn(Optional.of(testStore));
+        given(storeRepository.save(any(Store.class))).willReturn(testStore);
+
+        // when
+        ApiResponse<StoreResponseDto> response = storeService.updateStoreOperatingHours(username, storeId, requestDto);
+
+        // then
+        assertThat(response.data()).isNotNull();
+        
+        then(userRepository).should().findByUsername(username);
+        then(storeRepository).should().findByIdAndDeletedAtIsNull(storeId);
+        then(storeRepository).should().save(testStore);
+    }
+
+    @Test
+    @DisplayName("영업 시간 변경 - 권한 없음")
+    void updateStoreOperatingHours_accessDenied() {
+        // given
+        String username = "testUser";
+        UUID storeId = UUID.randomUUID();
+
+        User otherUser = User.builder()
+                .username("otherUser")
+                .email("other@example.com")
+                .password("password")
+                .role(UserRole.OWNER)
+                .build();
+
+        User testUser = User.builder()
+                .username(username)
+                .email("test@example.com")
+                .password("password")
+                .role(UserRole.CUSTOMER)
+                .build();
+
+        Store testStore = Store.builder()
+                .id(storeId)
+                .name("Test Store")
+                .owner(otherUser)
+                .openTime(LocalTime.of(10, 0))
+                .closeTime(LocalTime.of(21, 0))
+                .build();
+
+        StoreOperatingHoursUpdateRequestDto requestDto = StoreOperatingHoursUpdateRequestDto.builder()
+                .openTime(LocalTime.of(9, 0))
+                .closeTime(LocalTime.of(22, 0))
+                .build();
+
+        given(userRepository.findByUsername(username)).willReturn(Optional.of(testUser));
+        given(storeRepository.findByIdAndDeletedAtIsNull(storeId)).willReturn(Optional.of(testStore));
+
+        // when & then
+        assertThatThrownBy(() -> storeService.updateStoreOperatingHours(username, storeId, requestDto))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("해당 리소스에 접근할 권한이 없습니다");
+
+        then(storeRepository).should(never()).save(any(Store.class));
     }
 }
