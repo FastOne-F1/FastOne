@@ -1,9 +1,6 @@
 package com.f1.fastone.order.service;
 
 import com.f1.fastone.cart.dto.response.CartItemResponseDto;
-import com.f1.fastone.cart.entity.Cart;
-import com.f1.fastone.cart.entity.CartItem;
-import com.f1.fastone.cart.repository.CartRepository;
 import com.f1.fastone.common.auth.security.UserDetailsImpl;
 import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
@@ -13,6 +10,7 @@ import com.f1.fastone.menu.repository.MenuRepository;
 import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
 import com.f1.fastone.order.dto.ShipToDto;
+import com.f1.fastone.order.dto.request.OrderSearchRequestDto;
 import com.f1.fastone.order.dto.request.OrderStatusRequestDto;
 import com.f1.fastone.order.dto.response.OrderDetailResponseDto;
 import com.f1.fastone.order.dto.response.OrderResponseDto;
@@ -30,7 +28,9 @@ import com.f1.fastone.user.entity.UserRole;
 import com.f1.fastone.user.repository.UserAddressRepository;
 import com.f1.fastone.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -55,7 +53,7 @@ public class OrderService {
     private final MenuRepository menuRepository;
     private final UserAddressRepository userAddressRepository;
 
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Transactional(TxType.REQUIRES_NEW)
     public void createOrderFromPayment(String username, Payment payment, List<CartItemResponseDto> cartItems) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
         UserAddress address = userAddressRepository.findById(payment.getAddressId())
@@ -128,6 +126,10 @@ public class OrderService {
         List<OrderItemDto> orderItemDtos = order.getOrderItems().stream().map(OrderItemDto::from).toList();
 
         return OrderDetailResponseDto.from(order, shipToDto, paymentDto, orderItemDtos);
+    }
+
+    public List<OrderResponseDto> searchOrders(String username, OrderSearchRequestDto searchRequest) {
+        return null;
     }
 
     @Transactional
@@ -209,4 +211,6 @@ public class OrderService {
                 })
                 .toList();
     }
+
+
 }
