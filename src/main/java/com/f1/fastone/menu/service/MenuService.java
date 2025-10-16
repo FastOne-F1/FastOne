@@ -41,8 +41,9 @@ public class MenuService {
         String description = dto.useAi()
                 ? aiService.generateDescription(
                         store.getOwner(),
-                        "카테고리가 " + category.getMenuCategoryName() + "인 메뉴 " + dto.name()
-                         + "의 깔끔한 소개 문장을 한국어로 해당 문장만 답변해주세요."
+                        "배달앱에 등록할 메뉴 설명을 작성할건데 카테고리가 "
+                                + category.getMenuCategoryName() + "인 메뉴 " + dto.name()
+                                + "의 깔끔한 소개 문장을 한국어로 해당 문장만 답변해주세요."
                 )
                 : dto.description();
 

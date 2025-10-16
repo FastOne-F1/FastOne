@@ -35,6 +35,14 @@ public class StoreRating {
         this.scoreAvg = scoreAvg != null ? scoreAvg : BigDecimal.ZERO;
     }
 
+    public static StoreRating create(Store store) {
+        return StoreRating.builder()
+                .store(store)
+                .reviewCount(0)
+                .scoreAvg(BigDecimal.ZERO)
+                .build();
+    }
+
     public void addScore(int newScore) {
         int newCount = this.reviewCount + 1;
         this.scoreAvg = calculateNewAverage(this.scoreAvg, this.reviewCount, newScore, newCount);
