@@ -12,10 +12,11 @@ import com.f1.fastone.menu.repository.MenuCategoryRepository;
 import com.f1.fastone.menu.repository.MenuRepository;
 import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.store.repository.StoreRepository;
+import com.f1.fastone.user.repository.UserRepository;
+import com.f1.fastone.ai.service.AiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +25,10 @@ import java.util.UUID;
 public class MenuService {
 
     private final MenuRepository menuRepository;
-    private final MenuCategoryRepository  menuCategoryRepository;
+    private final MenuCategoryRepository menuCategoryRepository;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
+    private final AiService aiService;
 
     // 메뉴 생성
     public ApiResponse<MenuResponseDto> createMenu(MenuCreateRequestDto dto) {
@@ -33,19 +36,25 @@ public class MenuService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.STORE_NOT_FOUND));
 
         MenuCategory category = menuCategoryRepository.findById(dto.categoryId())
-              .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MENU_CATEGORY_NOT_FOUND));
 
+        String description = dto.useAi()
+                ? aiService.generateDescription(
+                        store.getOwner(),
+                        "카테고리가 " + category.getMenuCategoryName() + "인 메뉴 " + dto.name()
+                         + "의 깔끔한 소개 문장을 한국어로 해당 문장만 답변해주세요."
+                )
+                : dto.description();
 
-
-    Menu menu = new Menu(
-            dto.name(),
-            dto.description(),
-            dto.price(),
-            dto.soldOut(),
-            dto.imageUrl(),
-            store,
-            category
-    );
+        Menu menu = new Menu(
+                dto.name(),
+                description,
+                dto.price(),
+                dto.soldOut(),
+                dto.imageUrl(),
+                store,
+                category
+        );
 
     Menu saved = menuRepository.save(menu);
     return ApiResponse.created(toResponseDto(saved));

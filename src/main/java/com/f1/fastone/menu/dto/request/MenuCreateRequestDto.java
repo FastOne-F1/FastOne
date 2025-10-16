@@ -12,5 +12,6 @@ public record MenuCreateRequestDto(
         boolean soldOut,
         String imageUrl,
         @NotNull UUID storeId,
-        UUID categoryId
+        UUID categoryId,
+        boolean useAi
 ) {}
