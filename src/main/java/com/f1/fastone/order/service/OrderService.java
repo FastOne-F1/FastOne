@@ -141,7 +141,73 @@ public class OrderService {
         return OrderDetailResponseDto.from(order, shipToDto, paymentDto, orderItemDtos);
     }
 
+    public List<OrderResponseDto> searchOrders(UserDetailsImpl userDetails, String search) {
+        User user = userDetails.getUser();
+        UserRole role = user.getRole();
+        List<Order> orders = null;
+        List<Order> searchedOrders = null;
 
+        // keyword 유효성 검증
+//        if (keyword == null || keyword.isEmpty()) {
+//            Page<Order> orders = orderRepository.findAllByUser(user);
+//
+//            Page<OrderResponseDto> responseDtos = orders.map(order ->
+//                    OrderResponseDto.from(
+//                            order,
+//                            new PaymentDto(order.getTotalPrice()),
+//                            order.getOrderItems().stream().map(OrderItemDto::from).toList()
+//                    )
+//            );
+//            return PageResponse.of(responseDtos);
+//        }
+        List<String> keywords = validSearchKeywords(search);
+        Boolean searching = true;
+        if (keywords == null) {
+            searching = false;
+        }
+
+        switch (role) {
+            case CUSTOMER -> {
+                orders = orderRepository.findAllByUser(user);
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, false);
+            }
+
+            case OWNER -> {
+                Store store = storeRepository.findByOwner(user);
+                orders = orderRepository.findAllByStore(store);
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, true);
+            }
+            case MANAGER, MASTER -> {
+                orders = orderRepository.findAll();
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, true);
+            }
+        }
+
+        if (orders == null || orders.isEmpty()) {
+            throw new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND);
+        }
+
+        if (!searching) {
+            return orders.stream().map(order ->
+                    OrderResponseDto.from(
+                            order,
+                            new PaymentDto(order.getTotalPrice()),
+                            order.getOrderItems().stream().map(OrderItemDto::from).toList()
+                    )
+            ).toList();
+        }
+
+        return searchedOrders.stream().map(order ->
+                OrderResponseDto.from(
+                        order,
+                        new PaymentDto(order.getTotalPrice()),
+                        order.getOrderItems().stream().map(OrderItemDto::from).toList()
+                )
+        ).toList();
+    }
 
     @Transactional
     public OrderResponseDto updateOrderStatus(UserDetailsImpl userDetails, UUID orderId, OrderStatusRequestDto requestDto) {

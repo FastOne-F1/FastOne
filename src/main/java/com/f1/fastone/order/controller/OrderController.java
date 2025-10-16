@@ -45,24 +45,24 @@ public class OrderController {
         return ApiResponse.success(response);
     }
 
-//    @GetMapping("/search")
-//    @Operation(summary = "주문 내역 검색")
-//    public ApiResponse<List<OrderResponseDto>> searchOrders(
-//            @AuthenticationPrincipal UserDetailsImpl userDetails,
-//
-//            @Parameter(description = "가게 상호명 / 메뉴명 / 고객명(관리자용) 등")
-//            @RequestParam(required = false) String search,
-//
-//            @Parameter(description = "페이지 번호")
-//            @RequestParam(defaultValue = "0") int page,
-//            @Parameter(description = "페이지 크기 (10, 30, 50)")
-//            @RequestParam(defaultValue = "10") int size // 한 페이지 당
-//    ) {
-////        Pageable pageable = PageUtils.createdAtDesc(page, size);
-////        PageResponse<OrderResponseDto> response = orderService.searchOrders(userDetails, pageable, keyword);
-//            List<OrderResponseDto> response = orderService.searchOrders(userDetails, search);
-//        return ApiResponse.success(response);
-//    }
+    @GetMapping("/search")
+    @Operation(summary = "주문 내역 검색")
+    public ApiResponse<List<OrderResponseDto>> searchOrders(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+
+            @Parameter(description = "가게 상호명 / 메뉴명 / 고객명(관리자용) 등")
+            @RequestParam(required = false) String search,
+
+            @Parameter(description = "페이지 번호")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기 (10, 30, 50)")
+            @RequestParam(defaultValue = "10") int size // 한 페이지 당
+    ) {
+//        Pageable pageable = PageUtils.createdAtDesc(page, size);
+//        PageResponse<OrderResponseDto> response = orderService.searchOrders(userDetails, pageable, keyword);
+            List<OrderResponseDto> response = orderService.searchOrders(userDetails, search);
+        return ApiResponse.success(response);
+    }
 
     @PatchMapping("/{orderId}/status")
     @Operation(summary = "주문 상태 변경")
