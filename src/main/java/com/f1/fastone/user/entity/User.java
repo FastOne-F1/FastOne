@@ -1,6 +1,5 @@
 package com.f1.fastone.user.entity;
 
-import com.f1.fastone.cart.entity.Cart;
 import com.f1.fastone.common.entity.BaseEntity;
 import com.f1.fastone.order.entity.Order;
 import com.f1.fastone.review.entity.Review;
@@ -8,7 +7,6 @@ import com.f1.fastone.store.entity.Store;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -44,9 +42,6 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "owner")
     private List<Store> stores = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Cart> carts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
