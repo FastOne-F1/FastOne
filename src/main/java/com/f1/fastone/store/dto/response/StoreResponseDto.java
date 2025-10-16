@@ -28,6 +28,30 @@ public record StoreResponseDto(
         BigDecimal averageRating,
         Integer reviewCount
 ) {
+
+    public StoreResponseDto(Store store, Long favoriteCount, BigDecimal averageRating, Integer reviewCount) {
+        this(
+                store.getId(),
+                store.getName(),
+                store.getPhone(),
+                store.getPostalCode(),
+                store.getCity(),
+                store.getAddress(),
+                store.getAddressDetail(),
+                store.getLatitude(),
+                store.getLongitude(),
+                store.getOpenTime(),
+                store.getCloseTime(),
+                store.getCategory() != null ? store.getCategory().getStoreCategoryName() : null,
+                store.getOwner().getUsername(),
+                store.getCreatedAt(),
+                store.getUpdatedAt(),
+                favoriteCount,
+                averageRating,
+                reviewCount
+        );
+    }
+
     public static StoreResponseDto fromEntity(Store store) {
         return new StoreResponseDto(
                 store.getId(),
@@ -50,7 +74,7 @@ public record StoreResponseDto(
         );
     }
     
-    public static StoreResponseDto fromEntityWithStats(Store store, Long favoriteCount, BigDecimal averageRating, Integer reviewCount) {
+    public static StoreResponseDto fromEntityWithStats(Store store, Long favoriteCount) {
         return new StoreResponseDto(
                 store.getId(),
                 store.getName(),
@@ -68,8 +92,8 @@ public record StoreResponseDto(
                 store.getCreatedAt(),
                 store.getUpdatedAt(),
                 favoriteCount,
-                averageRating,
-                reviewCount
+                store.getStoreRating().getScoreAvg(),
+                store.getStoreRating().getReviewCount()
         );
     }
 }

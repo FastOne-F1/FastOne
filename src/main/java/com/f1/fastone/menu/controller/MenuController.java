@@ -27,13 +27,13 @@ public class MenuController {
     }
 
     // READ 단일
-    @GetMapping("/{id}")
+    @GetMapping("/menu/{id}")
     public ApiResponse<MenuResponseDto> getMenu(@PathVariable UUID id) {
         return menuService.getMenu(id);
     }
 
     // READ 전체
-    @GetMapping
+    @GetMapping("/{storeId}")
     public ApiResponse<List<MenuResponseDto>> getMenusByStore(@PathVariable UUID storeId) {
         return menuService.getMenusByStore(storeId);
     }

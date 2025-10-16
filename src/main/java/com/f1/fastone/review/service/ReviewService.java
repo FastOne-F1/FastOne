@@ -1,5 +1,6 @@
 package com.f1.fastone.review.service;
 
+import com.f1.fastone.user.entity.User;
 import java.util.UUID;
 
 import com.f1.fastone.order.repository.OrderRepository;
@@ -74,13 +75,13 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public PageResponse<ReviewResponseDto> getReviewsByStore(UUID storeId, Pageable pageable) {
+	public PageResponse<ReviewResponseDto> getReviewsByStore(User user, UUID storeId, Pageable pageable) {
 		return PageResponse.of(
 			reviewRepository.findByStoreId(storeId, pageable)
 				.map(review -> {
 					String summary = reviewSummaryService.getCachedSummary(review.getId().toString());
 					if (summary == null) {
-						reviewSummaryService.summarizeReviewAsync(review.getId().toString(), review.getContent());
+						summary = reviewSummaryService.summarizeReview(user, review.getId().toString(), review.getContent());
 					}
 					return reviewMapper.toDtoWithSummary(review, summary);
 				})

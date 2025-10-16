@@ -24,7 +24,7 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String paymentKey; // 외부 결제 고유 키
 
     @Enumerated(EnumType.STRING)

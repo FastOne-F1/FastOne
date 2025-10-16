@@ -71,12 +71,13 @@ public class ReviewController {
 
 	@GetMapping("/stores/{storeId}")
 	public ApiResponse<PageResponse<ReviewResponseDto>> getReviewsByStore(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable UUID storeId,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageUtils.createdAtDesc(page, size);
-		PageResponse<ReviewResponseDto> response = reviewService.getReviewsByStore(storeId, pageable);
+		PageResponse<ReviewResponseDto> response = reviewService.getReviewsByStore(userDetails.getUser(), storeId, pageable);
 		return ApiResponse.success(response);
 	}
 

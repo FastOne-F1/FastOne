@@ -83,18 +83,18 @@ public class StoreFavoriteService {
     public ApiResponse<List<StoreResponseDto>> getUserFavorites(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ServiceException(ErrorCode.USER_NOT_FOUND));
-        
+
         List<StoreFavorite> favorites = storeFavoriteRepository.findByUser(user);
-        
+
         List<StoreResponseDto> responseDtos = favorites.stream()
                 .map(favorite -> {
                     Store store = favorite.getStore();
                     // 통계 정보는 별도 조회 (간단한 구현)
                     Long favoriteCount = storeFavoriteRepository.countByStoreId(store.getId());
-                    return StoreResponseDto.fromEntityWithStats(store, favoriteCount, null, null);
+                    return StoreResponseDto.fromEntityWithStats(store, favoriteCount);
                 })
                 .toList();
-        
+
         return ApiResponse.success(responseDtos);
     }
 }
