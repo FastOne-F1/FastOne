@@ -16,7 +16,7 @@ services:
   redis:
     image: redis:7.2
     container_name: redis-fastone
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "qwer1234"]
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     volumes:
