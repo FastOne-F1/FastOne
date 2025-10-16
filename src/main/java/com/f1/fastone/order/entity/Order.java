@@ -79,14 +79,6 @@ public class Order extends BaseEntity {
                 .build();
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        if (orderItems != null) {
-            this.orderItems.clear();
-            this.orderItems.addAll(orderItems);
-            orderItems.forEach(orderItem -> orderItem.setOrder(this));
-        }
-    }
-
     public void setOrderStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
     }
