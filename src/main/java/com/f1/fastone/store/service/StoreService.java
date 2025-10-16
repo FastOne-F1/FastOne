@@ -13,7 +13,9 @@ import com.f1.fastone.store.dto.response.StoreSearchPageResponseDto;
 import com.f1.fastone.store.dto.response.StoreSearchResponseDto;
 import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.store.entity.StoreCategory;
+import com.f1.fastone.store.entity.StoreRating;
 import com.f1.fastone.store.repository.StoreCategoryRepository;
+import com.f1.fastone.store.repository.StoreRatingRepository;
 import com.f1.fastone.store.repository.StoreRepository;
 import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserAddress;
@@ -39,6 +41,7 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
     private final StoreCategoryRepository storeCategoryRepository;
+    private final StoreRatingRepository storeRatingRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
 
@@ -63,9 +66,13 @@ public class StoreService {
 
         // Store 생성
         Store store = dto.toEntity(user, category);
-        Store savedStore = storeRepository.save(store);
+        storeRepository.save(store);
 
-        return ApiResponse.created(StoreResponseDto.fromEntity(savedStore));
+        // StoreRating 생성 및 초기화
+        StoreRating storeRating = StoreRating.create(store);
+        storeRatingRepository.save(storeRating);
+
+        return ApiResponse.created(StoreResponseDto.fromEntity(store));
     }
 
     // 단일 가게 조회
