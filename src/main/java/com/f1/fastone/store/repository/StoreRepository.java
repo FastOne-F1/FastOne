@@ -1,5 +1,6 @@
 package com.f1.fastone.store.repository;
 
+import com.f1.fastone.store.dto.response.StoreResponseDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,39 +21,61 @@ public interface StoreRepository extends JpaRepository<Store, UUID> {
     
     List<Store> findAllByDeletedAtIsNull();
     
-    // 사용자 주소의 city와 일치하는 가게 조회
-    List<Store> findByCityAndDeletedAtIsNull(String city);
-
-    // 가게명 기반 키워드 검색(페이징)
-    Page<Store> findByNameContainingIgnoreCaseAndDeletedAtIsNull(String name, Pageable pageable);
-
-    // 카테고리별 가게 목록 조회(페이징)
-    Page<Store> findByCategoryIdAndDeletedAtIsNull(Long categoryId, Pageable pageable);
-
-    // 특정 가게 카테고리 내의 가게명 검색(페이징)
-    Page<Store> findByNameContainingIgnoreCaseAndCategoryIdAndDeletedAtIsNull(
-            String name, Long categoryId, Pageable pageable);
-
-    // 관리자용 전체 가게 조회(페이징)
-    Page<Store> findAllByDeletedAtIsNull(Pageable pageable);
-    
-    // 가게 조회 시 좋아요 수와 별점 정보 포함 (단일 조회)
-    @Query("SELECT s, " +
-           "COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) as favoriteCount, " +
-           "COALESCE(sr.scoreAvg, 0) as averageRating, " +
-           "COALESCE(sr.reviewCount, 0) as reviewCount " +
-           "FROM Store s " +
-           "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
+    // 가게 조회 시 StoreRating을 함께 로드 (좋아요 수 등 통계는 별도 쿼리)
+    @Query("SELECT s FROM Store s " +
+           "LEFT JOIN FETCH s.storeRating sr " +
            "WHERE s.id = :storeId AND s.deletedAt IS NULL")
-    Object[] findStoreWithStatsById(@Param("storeId") UUID storeId);
+    Store findStoreWithStatsById(@Param("storeId") UUID storeId);
     
     // 가게 목록 조회 시 좋아요 수와 별점 정보 포함 (페이징)
-    @Query("SELECT s, " +
-           "COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) as favoriteCount, " +
-           "COALESCE(sr.scoreAvg, 0) as averageRating, " +
-           "COALESCE(sr.reviewCount, 0) as reviewCount " +
-           "FROM Store s " +
-           "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
-           "WHERE s.deletedAt IS NULL")
-    Page<Object[]> findStoresWithStats(Pageable pageable);
+    @Query("SELECT new com.f1.fastone.store.dto.response.StoreResponseDto(" +
+            "s, " +
+            "CAST(COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) AS long), " +
+            "CAST(COALESCE(sr.scoreAvg, 0) AS bigdecimal), " +
+            "CAST(COALESCE(sr.reviewCount, 0) AS int)) " +
+            "FROM Store s " +
+            "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
+            "WHERE s.deletedAt IS NULL")
+    Page<StoreResponseDto> findStoresWithStats(Pageable pageable);
+
+    @Query("SELECT new com.f1.fastone.store.dto.response.StoreResponseDto(" +
+            "s, " +
+            "CAST(COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) AS long), " +
+            "CAST(COALESCE(sr.scoreAvg, 0) AS bigdecimal), " +
+            "CAST(COALESCE(sr.reviewCount, 0) AS int)) " +
+            "FROM Store s " +
+            "LEFT JOIN FETCH s.category c " +
+            "LEFT JOIN FETCH s.owner o " +
+            "LEFT JOIN StoreRating sr ON s.id = sr.store.id " +
+            "WHERE s.deletedAt IS NULL AND s.city = :city")
+    List<StoreResponseDto> findStoresWithStatsByCity(@Param("city") String city, Pageable pageable);
+
+    @Query(
+            value = """
+                SELECT new com.f1.fastone.store.dto.response.StoreResponseDto(
+                    s,
+                    CAST(COALESCE((SELECT COUNT(sf) FROM StoreFavorite sf WHERE sf.store = s), 0) AS long),
+                    CAST(COALESCE(sr.scoreAvg, 0) AS bigdecimal),
+                    CAST(COALESCE(sr.reviewCount, 0) AS int)
+                )
+                FROM Store s
+                LEFT JOIN StoreRating sr ON s.id = sr.store.id
+                WHERE s.deletedAt IS NULL
+                AND s.city = :city
+                AND (:keyword IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                AND (:categoryId IS NULL OR s.category.id = :categoryId)
+            """,
+            countQuery = """
+                SELECT COUNT(s)
+                FROM Store s
+                WHERE s.deletedAt IS NULL
+                AND s.city = :city
+                AND (:keyword IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                AND (:categoryId IS NULL OR s.category.id = :categoryId)
+            """)
+    Page<StoreResponseDto> findStoresWithStatsByCityAndFilters(
+            @Param("city") String city,
+            @Param("keyword") String keyword,
+            @Param("categoryId") Long categoryId,
+            Pageable pageable);
 }
