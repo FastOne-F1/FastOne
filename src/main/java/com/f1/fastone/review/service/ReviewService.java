@@ -1,8 +1,12 @@
 package com.f1.fastone.review.service;
 
 import com.f1.fastone.user.entity.User;
+
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,15 +80,18 @@ public class ReviewService {
 
 	@Transactional(readOnly = true)
 	public PageResponse<ReviewResponseDto> getReviewsByStore(User user, UUID storeId, Pageable pageable) {
+
+		Page<Review> page = reviewRepository.findByStoreId(storeId, pageable);
+		List<Review> latestReviews = reviewRepository.findTop10ByStoreIdOrderByCreatedAtDesc(storeId);
+
+		String summary = Optional.ofNullable(reviewSummaryService.getCachedSummary(storeId))
+			.orElseGet(() -> {
+				if (latestReviews.isEmpty()) return null;
+				return reviewSummaryService.summarizeRecentReviews(user, storeId, latestReviews);
+			});
+
 		return PageResponse.of(
-			reviewRepository.findByStoreId(storeId, pageable)
-				.map(review -> {
-					String summary = reviewSummaryService.getCachedSummary(review.getId().toString());
-					if (summary == null) {
-						summary = reviewSummaryService.summarizeReview(user, review.getId().toString(), review.getContent());
-					}
-					return reviewMapper.toDtoWithSummary(review, summary);
-				})
+			page.map(review -> reviewMapper.toDtoWithSummary(review, summary))
 		);
 	}
 
