@@ -7,11 +7,10 @@ import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserAddress;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity

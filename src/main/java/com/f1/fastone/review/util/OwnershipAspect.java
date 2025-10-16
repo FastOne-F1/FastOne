@@ -2,6 +2,7 @@ package com.f1.fastone.review.util;
 
 import java.util.UUID;
 
+import com.f1.fastone.order.repository.OrderRepository;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,6 @@ import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.common.exception.custom.ServiceException;
 import com.f1.fastone.common.util.CheckOwner;
 import com.f1.fastone.order.entity.Order;
-import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.review.entity.Review;
 import com.f1.fastone.review.repository.ReviewRepository;
 import com.f1.fastone.store.entity.Store;

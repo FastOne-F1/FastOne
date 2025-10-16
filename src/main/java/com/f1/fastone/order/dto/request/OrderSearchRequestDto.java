@@ -1,9 +1,8 @@
 package com.f1.fastone.order.dto.request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Builder
 public class OrderSearchRequestDto {
@@ -13,9 +12,8 @@ public class OrderSearchRequestDto {
     private int page;
     @Pattern(regexp = "10|30|50", message = "주문은 10/30/50건씩 조회 가능합니다")
     private String size;
-    private String sortBy = "createdAt";
-    @Pattern(regexp = "asc|desc", message = "정렬 방향은 'asc' 또는 'desc'만 가능합니다.")
-    private String sortDirection = "desc";
+//    @Pattern(regexp = "asc|desc", message = "정렬 방향은 'asc' 또는 'desc'만 가능합니다.")
+//    private String sortDirection = "desc";
 
 
     public void setUp() {
