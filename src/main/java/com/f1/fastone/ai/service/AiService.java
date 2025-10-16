@@ -2,6 +2,8 @@ package com.f1.fastone.ai.service;
 
 import com.f1.fastone.ai.entity.AiRequestLog;
 import com.f1.fastone.ai.repository.AiRequestLogRepository;
+import com.f1.fastone.common.exception.ErrorCode;
+import com.f1.fastone.common.exception.custom.ServiceException;
 import com.f1.fastone.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,19 +17,23 @@ public class AiService {
     private final AiRequestLogRepository aiRequestLogRepository;
 
     public String generateDescription(User user, String prompt) {
-        String aiResponse = chatClient.prompt(prompt)
-                .call()
-                .content();
+        try {
+            String aiResponse = chatClient.prompt(prompt)
+                    .call()
+                    .content();
 
-        // 로그 저장
-        AiRequestLog log = AiRequestLog.builder()
-                .prompt(prompt)
-                .response(aiResponse)
-                .model("gemini-1.5-flash")
-                .requester(user)
-                .build();
+            // 로그 저장
+            AiRequestLog log = AiRequestLog.builder()
+                    .prompt(prompt)
+                    .response(aiResponse)
+                    .model("gpt-4o-mini")
+                    .requester(user)
+                    .build();
 
-        aiRequestLogRepository.save(log);
-        return aiResponse;
+            aiRequestLogRepository.save(log);
+            return aiResponse;
+        } catch (Exception e) {
+            throw new ServiceException(ErrorCode.EXTERNAL_SERVER_ERROR);
+        }
     }
 }
