@@ -174,7 +174,7 @@ class ReviewServiceTest {
 		var response = reviewService.getReviewsByStore(storeId, PageRequest.of(0, 10));
 
 		assertThat(response.content()).hasSize(1);
-		then(reviewSummaryService).should().summarizeReviewAsync(anyString(), anyString());
+		then(reviewSummaryService).should().summarizeReview(anyString(), anyString());
 	}
 
 	@Test
