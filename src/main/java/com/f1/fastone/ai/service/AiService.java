@@ -8,6 +8,8 @@ import com.f1.fastone.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ public class AiService {
     private final ChatClient chatClient;
     private final AiRequestLogRepository aiRequestLogRepository;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String generateDescription(User user, String prompt) {
         try {
             String aiResponse = chatClient.prompt(prompt)
