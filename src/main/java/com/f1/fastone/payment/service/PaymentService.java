@@ -21,6 +21,8 @@ import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.store.repository.StoreRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +39,9 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final UserAddressRepository userAddressRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     @Transactional(readOnly = true)
     public PaymentPrepareResponseDto preparePayment(String username, UUID storeId) {

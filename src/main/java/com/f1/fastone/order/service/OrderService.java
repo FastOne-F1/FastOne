@@ -53,7 +53,7 @@ public class OrderService {
     private final MenuRepository menuRepository;
     private final UserAddressRepository userAddressRepository;
 
-    @Transactional(TxType.REQUIRES_NEW)
+    @Transactional
     public void createOrderFromPayment(String username, Payment payment, List<CartItemResponseDto> cartItems) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND));
         UserAddress address = userAddressRepository.findById(payment.getAddressId())
@@ -65,7 +65,6 @@ public class OrderService {
 
         List<OrderItem> orderItems = convertCartToOrder(order, cartItems);
         orderItemRepository.saveAll(orderItems);
-        order.setOrderItems(orderItems);
     }
 
     @Transactional
