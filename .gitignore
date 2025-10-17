@@ -50,4 +50,8 @@ Thumbs.db
 /coverage/
 /jacoco.exec
 
+# 환경 변수
 .env
+
+## custom
+src/main/resources/application-secret.yaml
