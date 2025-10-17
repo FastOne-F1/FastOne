@@ -23,22 +23,22 @@ import com.f1.fastone.store.entity.Store;
 import com.f1.fastone.store.repository.StoreRepository;
 import com.f1.fastone.user.entity.User;
 import com.f1.fastone.user.entity.UserAddress;
-import com.f1.fastone.user.repository.UserAddressRepository;
 import com.f1.fastone.user.entity.UserRole;
+import com.f1.fastone.user.repository.UserAddressRepository;
 import com.f1.fastone.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.transaction.Transactional.TxType;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -73,6 +73,19 @@ public class OrderService {
         UserRole role = user.getRole();
         List<Order> orders = null;
 
+//        if (keyword == null || keyword.isEmpty()) {
+//            Page<Order> orders = orderRepository.findAllByUser(user);
+//
+//            Page<OrderResponseDto> responseDtos = orders.map(order ->
+//                    OrderResponseDto.from(
+//                            order,
+//                            new PaymentDto(order.getTotalPrice()),
+//                            order.getOrderItems().stream().map(OrderItemDto::from).toList()
+//                    )
+//            );
+//            return PageResponse.of(responseDtos);
+//        }
+
         switch (role) {
             case CUSTOMER -> {
                 orders = user.getOrders();
@@ -81,7 +94,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 orders = orderRepository.findAllByStore(store);
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 orders = orderRepository.findAll();
             }
         }
@@ -113,7 +126,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 order = orderRepository.findByIdAndStore(orderId, store).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_DETAIL_ACCESS_DENIED));
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_DETAIL_ACCESS_DENIED));
             }
         }
@@ -125,6 +138,74 @@ public class OrderService {
         List<OrderItemDto> orderItemDtos = order.getOrderItems().stream().map(OrderItemDto::from).toList();
 
         return OrderDetailResponseDto.from(order, shipToDto, paymentDto, orderItemDtos);
+    }
+
+    public List<OrderResponseDto> searchOrders(UserDetailsImpl userDetails, String search) {
+        User user = userDetails.getUser();
+        UserRole role = user.getRole();
+        List<Order> orders = null;
+        List<Order> searchedOrders = null;
+
+        // keyword 유효성 검증
+//        if (keyword == null || keyword.isEmpty()) {
+//            Page<Order> orders = orderRepository.findAllByUser(user);
+//
+//            Page<OrderResponseDto> responseDtos = orders.map(order ->
+//                    OrderResponseDto.from(
+//                            order,
+//                            new PaymentDto(order.getTotalPrice()),
+//                            order.getOrderItems().stream().map(OrderItemDto::from).toList()
+//                    )
+//            );
+//            return PageResponse.of(responseDtos);
+//        }
+        List<String> keywords = validSearchKeywords(search);
+        Boolean searching = true;
+        if (keywords == null) {
+            searching = false;
+        }
+
+        switch (role) {
+            case CUSTOMER -> {
+                orders = orderRepository.findAllByUser(user);
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, false);
+            }
+
+            case OWNER -> {
+                Store store = storeRepository.findByOwner(user);
+                orders = orderRepository.findAllByStore(store);
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, true);
+            }
+            case MANAGER, MASTER -> {
+                orders = orderRepository.findAll();
+                if (!searching) break;
+                searchedOrders = searchKeywords(orders, keywords, true);
+            }
+        }
+
+        if (orders == null || orders.isEmpty()) {
+            throw new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND);
+        }
+
+        if (!searching) {
+            return orders.stream().map(order ->
+                    OrderResponseDto.from(
+                            order,
+                            new PaymentDto(order.getTotalPrice()),
+                            order.getOrderItems().stream().map(OrderItemDto::from).toList()
+                    )
+            ).toList();
+        }
+
+        return searchedOrders.stream().map(order ->
+                OrderResponseDto.from(
+                        order,
+                        new PaymentDto(order.getTotalPrice()),
+                        order.getOrderItems().stream().map(OrderItemDto::from).toList()
+                )
+        ).toList();
     }
 
     @Transactional
@@ -141,7 +222,7 @@ public class OrderService {
                 Store store = storeRepository.findByOwner(user);
                 order = orderRepository.findByIdAndStore(orderId, store).orElseThrow(() -> new ServiceException(ErrorCode.ORDER_UPDATE_DENIED));
             }
-            case MANAGER -> {
+            case MANAGER, MASTER -> {
                 order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.ORDER_NOT_FOUND));
             }
         }
@@ -175,7 +256,7 @@ public class OrderService {
                     throw new ServiceException(ErrorCode.ORDER_DELETE_DENIED);
                 }
             }
-            case OWNER, MANAGER -> {
+            case OWNER, MANAGER, MASTER -> {
                 orderRepository.delete(order);
             }
         }
@@ -206,4 +287,76 @@ public class OrderService {
                 })
                 .toList();
     }
+
+
+    private List<Order> searchKeywords(List<Order> orders, List<String> keywords, boolean user) {
+        List<Order> searchedOrders = new ArrayList<>();
+
+        // 가게명 검색
+//        List<String> stores = orders.stream().map(order -> order.getStore().getName()).toList();
+//        List<String> matchedStores = stores.stream()
+//                .filter(storeName -> keywords.stream().anyMatch(storeName::contains))
+//                .toList();
+        for (Order order : orders) {
+            for (String store : keywords) {
+                if (order.getStore().getName().contains(store)) {
+                    if (!searchedOrders.contains(order)) {
+                        searchedOrders.add(order);
+                        break;
+                    }
+                }
+            }
+
+        }
+
+        // 메뉴명 검색
+//        List<String> menus = orders.stream()
+//                .flatMap(order -> order.getOrderItems().stream())
+//                .map(OrderItem::getMenuName)
+//                .toList();
+//        List<String> matchedMenus = menus.stream()
+//                .filter(menuName -> keywords.stream().anyMatch(menuName::contains))
+//                .toList();
+        for (Order order : orders) {
+            boolean menuMatched = false;
+            for (OrderItem orderItem : order.getOrderItems()) {
+                for (String menu : keywords) {
+                    if (orderItem.getMenuName().contains(menu)) {
+                        if (!searchedOrders.contains(order)) {
+                            searchedOrders.add(order);
+                        }
+                        menuMatched = true;
+                        break;
+                    }
+                }
+                if (menuMatched) break;
+            }
+        }
+
+        // 고객명 검색
+        if (user) {
+            for (Order order : orders) {
+                for (String keyword :  keywords) {
+                    if (order.getUser().getUsername().contains(keyword)) {
+                        if (!searchedOrders.contains(order)) {
+                            searchedOrders.add(order);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return searchedOrders;
+    }
+
+    private List<String> validSearchKeywords(String keyword) {
+
+        if (keyword == null || keyword.isEmpty()) {
+            return null;
+        }
+        return List.of(keyword.split("\\s+"));
+    }
+
+
 }

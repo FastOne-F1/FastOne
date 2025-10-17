@@ -86,7 +86,7 @@ class ReviewControllerTest {
 		ReviewResponseDto response = new ReviewResponseDto(
 			UUID.randomUUID(), 5, "맛있어요!", "testUser",
 			"Test Store", LocalDateTime.now(), LocalDateTime.now(),
-			null, null
+			null, null, null
 		);
 
 		Mockito.when(reviewService.createReview(eq("testUser"), any(ReviewCreateRequestDto.class)))
@@ -106,7 +106,7 @@ class ReviewControllerTest {
 		ReviewUpdateRequestDto request = new ReviewUpdateRequestDto(4, "괜찮았어요");
 		ReviewResponseDto response = new ReviewResponseDto(
 			reviewId, 4, "괜찮았어요", "testUser", "Test Store",
-			LocalDateTime.now(), LocalDateTime.now(), null, null
+			LocalDateTime.now(), LocalDateTime.now(), null, null, null
 		);
 
 		Mockito.when(reviewService.updateReview(eq("testUser"), eq(reviewId), any(ReviewUpdateRequestDto.class)))
@@ -138,7 +138,7 @@ class ReviewControllerTest {
 		UUID reviewId = UUID.randomUUID();
 		ReviewResponseDto response = new ReviewResponseDto(
 			reviewId, 3, "보통이에요", "otherUser", "Other Store",
-			LocalDateTime.now(), LocalDateTime.now(), null, null
+			LocalDateTime.now(), LocalDateTime.now(), null, null, null
 		);
 
 		Mockito.when(reviewService.getReview(reviewId)).thenReturn(response);
@@ -156,11 +156,11 @@ class ReviewControllerTest {
 
 		ReviewResponseDto r1 = new ReviewResponseDto(
 			UUID.randomUUID(), 5, "굿!", "u1", "Store",
-			LocalDateTime.now(), LocalDateTime.now(), null, null
+			LocalDateTime.now(), LocalDateTime.now(), null, null, null
 		);
 		ReviewResponseDto r2 = new ReviewResponseDto(
 			UUID.randomUUID(), 4, "괜찮음", "u2", "Store",
-			LocalDateTime.now(), LocalDateTime.now(), null, null
+			LocalDateTime.now(), LocalDateTime.now(), null, null, null
 		);
 
 		Page<ReviewResponseDto> page = new PageImpl<>(

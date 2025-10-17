@@ -3,6 +3,7 @@ package com.f1.fastone.review.service;
 import com.f1.fastone.user.entity.User;
 import java.util.UUID;
 
+import com.f1.fastone.order.repository.OrderRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,6 @@ import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.common.util.CheckOwner;
 import com.f1.fastone.common.util.OwnershipType;
 import com.f1.fastone.order.entity.Order;
-import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.review.dto.req.ReplyRequestDto;
 import com.f1.fastone.review.dto.req.ReviewCreateRequestDto;
 import com.f1.fastone.review.dto.req.ReviewUpdateRequestDto;
