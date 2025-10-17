@@ -2,10 +2,10 @@
 
 <br>
 <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=gradient&text=FastOne&fontSize=60&fontAlignY=30&animation=fadeIn&rotate=0&desc=AI%20활용%20비즈니스%20프로젝트&descSize=30&reversal=false" style="width: 120%;">
-<!-- <br>
+<br>
 <div align="center">
-<img src="https://github.com/user-attachments/assets/3f6df515-9e11-4b63-b4e1-c35d22176721" style="width: 60%;">
-</div> -->
+<img src="[https://github.com/user-attachments/assets/3f6df515-9e11-4b63-b4e1-c35d22176721](https://github.com/user-attachments/assets/1c4756f8-ec90-4bf3-8a28-677c3235e354)" style="width: 60%;">
+</div>
 
 <br>
 
@@ -37,7 +37,7 @@
 
 ### 목차
 - [🛠 기술 스택](#-기술-스택)
-- [🎁 FastOne 서비스 소개](#-FastOne-서비스-소개)
+- [🎁 FastOne 서비스 소개](#-fastone-서비스-소개)
 - [📈 프로젝트 설계](#-프로젝트-설계)
   <br><br>
 
@@ -46,9 +46,9 @@
 #### &nbsp;　[ Backend ]
 &nbsp;&nbsp;&nbsp;&nbsp;
 <img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white" style="border-radius: 5px;">
-<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white" style="border-radius: 5px;">
+<img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring-Boot&logoColor=white" style="border-radius: 5px;">
 <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=Spring-Security&logoColor=white" style="border-radius: 5px;">
-<img src="https://img.shields.io/badge/Spring data jpa-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white" style="border-radius: 5px;">
+<img src="https://img.shields.io/badge/Spring data jpa-6DB33F?style=for-the-badge&logo=Spring-Boot&logoColor=white" style="border-radius: 5px;">
 
 #### &nbsp;　[ DB ]
 &nbsp;&nbsp;&nbsp;
@@ -69,13 +69,13 @@
 <br><br><br>
 
 ## 🎨 FastOne 서비스 소개
+<img width="1280" height="320" alt="f1_logo_blue" src="https://github.com/user-attachments/assets/fe9e5183-a38d-4406-99d3-03739d1110e6" />
 
 ### 프로젝트 배경
 - FastOne은 '배달의 민족', '요기요'와 같은 기존 음식 주문 플랫폼의 편리함은 그대로 유지하되, 사용자들이 겪었던 가장 큰 불편함인 여러 가게 음식을 동시에 주문하지 못하는 문제를 해결하기 위해 개발되었습니다.
 - 저희는 이 문제를 해결하고 차별점을 갖기 위해 하나의 장바구니에 여러 가게의 음식을 담을 수 있는 기능을 기획했습니다.
 - 이제 FastOne을 통해 더욱 빠르고 편리하며 스마트한 주문 경험을 만나보세요.
 
-### 세부 기능
 ### 🍴 세부 기능
 - **`회원 및 인증`**<br>
   일반 사용자와 점주 회원을 구분하여 회원가입 및 로그인 기능을 제공합니다.<br>
@@ -110,8 +110,13 @@ AI를 이용하여 메뉴 설명을 자연스러운 추천 문구를 제공합�
 
 
 ## 📈 프로젝트 설계
-<h3>1. ERD</h3>
+<details>
+<summary><h3>1. ERD</h3></summary>
+<img src="https://github.com/user-attachments/assets/742d8497-454a-4be6-bf91-fd9d9278fddd">
+</details>
+<details>
+<summary><h3>2. 시스템 아키텍처</h3></summary>
+<img src="https://github.com/user-attachments/assets/60c205b0-8b32-4cf0-83ac-e7a509489c3f" />
+</details>
 
-<h3>2. 시스템 아키텍처</h3>
-
-
+###  [3. API 명세서](http://www.fast1.kro.kr:8080/swagger-ui/index.html)
