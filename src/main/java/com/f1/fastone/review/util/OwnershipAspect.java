@@ -1,5 +1,6 @@
 package com.f1.fastone.review.util;
 
+import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.review.dto.req.ReviewCreateRequestDto;
 import java.util.UUID;
 
@@ -12,7 +13,6 @@ import com.f1.fastone.common.exception.ErrorCode;
 import com.f1.fastone.common.exception.custom.EntityNotFoundException;
 import com.f1.fastone.common.util.CheckOwner;
 import com.f1.fastone.order.entity.Order;
-import com.f1.fastone.order.repository.OrderRepository;
 import com.f1.fastone.review.entity.Review;
 import com.f1.fastone.review.repository.ReviewRepository;
 
