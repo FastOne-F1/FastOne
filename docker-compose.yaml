@@ -1,17 +1,44 @@
 version: "3.8"
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastone-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: postgres-fastone:5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis-fastone
+      REDIS_PORT: 6379
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      CUSTOM_API_KEY: ${CUSTOM_API_KEY}
+      CUSTOM_MODEL: ${CUSTOM_MODEL}
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - fastone-network
+
   db:
-    image: postgres:17.6
+    image: postgres:17
     container_name: postgres-fastone
     environment:
-      POSTGRES_DB: fastone
-      POSTGRES_USER: f1
-      POSTGRES_PASSWORD: qwer1234
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - fastone-network
 
   redis:
     image: redis:7.2
@@ -21,7 +48,14 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    restart: unless-stopped
+    networks:
+      - fastone-network
 
 volumes:
   pgdata:
   redisdata:
+
+networks:
+  fastone-network:
+    driver: bridge
