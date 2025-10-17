@@ -3,11 +3,6 @@
 <br>
 <img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=gradient&text=FastOne&fontSize=60&fontAlignY=30&animation=fadeIn&rotate=0&desc=AI%20활용%20비즈니스%20프로젝트&descSize=30&reversal=false" style="width: 120%;">
 <br>
-<div align="center">
-<img src="[https://github.com/user-attachments/assets/3f6df515-9e11-4b63-b4e1-c35d22176721](https://github.com/user-attachments/assets/1c4756f8-ec90-4bf3-8a28-677c3235e354)" style="width: 60%;">
-</div>
-
-<br>
 
 ## 🎁팀원 소개
 > **[JAVA 단기심화 부트캠프 4기]**<br>
