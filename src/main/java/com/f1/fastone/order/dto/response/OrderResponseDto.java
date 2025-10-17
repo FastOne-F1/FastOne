@@ -4,7 +4,10 @@ import com.f1.fastone.order.dto.OrderItemDto;
 import com.f1.fastone.order.dto.PaymentDto;
 import com.f1.fastone.order.entity.Order;
 import com.f1.fastone.order.entity.OrderStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;

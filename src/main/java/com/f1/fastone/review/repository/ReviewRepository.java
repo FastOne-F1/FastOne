@@ -1,5 +1,6 @@
 package com.f1.fastone.review.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -14,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 	@EntityGraph(attributePaths = {"user", "store", "order"})
 	Page<Review> findByStoreId(UUID storeId, Pageable pageable);
 
+	@EntityGraph(attributePaths = {"user", "store", "order"})
+	List<Review> findTop10ByStoreIdOrderByCreatedAtDesc(UUID storeId);
 }
